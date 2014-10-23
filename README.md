@@ -45,6 +45,7 @@ When compiling with optimization level `none` you must add a script tag to the
 page HTML to connect the client to the REPL server:
 
 ```html
+<!-- note: this is only needed when optimization level is :none -->
 <script type="text/javascript">goog.require('tailrecursion.boot_cljs_repl');</script>
 ```
 
@@ -54,6 +55,7 @@ Start a build pipeline with file-watcher, start ClojureScript REPL, and compile
 with no optimizations:
 
 ```bash
+# note: cljs-repl task must precede cljs task
 boot watch cljs-repl cljs -O none
 ```
 
