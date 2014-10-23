@@ -62,7 +62,6 @@ boot watch cljs-repl cljs -O none
 Connect to the REPL server you just started and do:
 
 ```clj
-boot.user=> (use 'tailrecursion.boot-cljs-repl)
 boot.user=> (start-repl)
 ```
 
