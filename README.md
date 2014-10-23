@@ -26,7 +26,7 @@ or in the REPL:
 boot.user=> (doc cljs-repl)
 ```
 
-#### Setup
+### Setup
 
 A typical `boot.build` file for ClojureScript development:
 
@@ -49,7 +49,7 @@ page HTML to connect the client to the REPL server:
 <script type="text/javascript">goog.require('tailrecursion.boot_cljs_repl');</script>
 ```
 
-#### Build
+### Build
 
 Start a build pipeline with file-watcher, start ClojureScript REPL, and compile
 with no optimizations:
@@ -58,7 +58,7 @@ with no optimizations:
 boot watch cljs-repl cljs -O none
 ```
 
-#### Start REPL
+### Start REPL
 
 Connect to the REPL server you just started and do:
 
