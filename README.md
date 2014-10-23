@@ -33,8 +33,7 @@ A typical `boot.build` file for ClojureScript development:
 ```clj
 (set-env!
   :src-paths    #{"src"}
-  :rsc-paths    #{"html"}
-  :dependencies '[[tailrecursion/boot-cljs      "0.0-2371-11" :scope "test"]
+  :dependencies '[[tailrecursion/boot-cljs      "0.0-2371-12" :scope "test"]
                   [tailrecursion/boot-cljs-repl "0.1.0"       :scope "test"]])
 
 (require
