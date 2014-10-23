@@ -8,20 +8,20 @@
    [boot.task.built-in :refer :all]
    [boot.from.backtick :refer [template]]))
 
-(defmacro r
+(defmacro ^:private r
   [sym]
   `(do (require '~(symbol (namespace sym))) (resolve '~sym)))
 
-(defmacro whendep
+(defmacro ^:private whendep
   [ns coord]
   `(when-not (guard (do (require '~ns) :ok)) '~coord))
 
-(def ws-host  (atom nil))
-(def ws-port  (atom 0))
-(def out-file (atom nil))
-(def continue (atom nil))
+(def ^:private ws-ip    (atom nil))
+(def ^:private ws-port  (atom 0))
+(def ^:private out-file (atom nil))
+(def ^:private continue (atom nil))
 
-(def deps 
+(def ^:private deps 
   (delay
     (concat
       (whendep cemerick.piggieback   [[com.cemerick/piggieback   "0.1.3"]])
@@ -29,13 +29,21 @@
       (whendep cljs.analyzer         [[org.clojure/clojurescript "0.0-2371"]]))))
 
 (defn start-repl
-  []
-  (let [mesg (with-out-str
-               (->> (when @ws-host [:ip @ws-host])
-                 (apply (r weasel.repl.websocket/repl-env) :port @ws-port)
+  "Start the Weasel server and attach REPL client to running browser environment.
+
+  Keyword Options:
+    :ip     str   The IP address the websocket server will listen on.
+    :port   int   The port the websocket server will listen on."
+  [& {i :ip p :port}]
+  (let [i    (or i @ws-ip)
+        p    (or p @ws-port)
+        clih (if (and i (not= i "0.0.0.0")) i "localhost")
+        mesg (with-out-str
+               (->> (when i [:ip i])
+                 (apply (r weasel.repl.websocket/repl-env) :port p)
                  ((r cemerick.piggieback/cljs-repl) :repl-env)))
         port (->> @@(r weasel.repl.server/state) :server meta :local-port)
-        conn (format "ws://%s:%d" (or @ws-host "localhost") port)]
+        conn (format "ws://%s:%d" clih port)]
     (info (.replaceAll mesg ":[0-9]+ >>" (format ":%d >>" port)))
     (io/make-parents @out-file)
     (->> (template
@@ -52,12 +60,12 @@
   The default configuration starts a websocket server on a random available
   port on localhost."
 
-  [H host ADDR str "The IP address for the server to listen on."
+  [i ip ADDR   str "The IP address for the server to listen on."
    p port PORT int "The port the websocket server listens on."]
 
   (let [src (mksrcdir!)]
+    (when ip (reset! ws-ip ip))
     (when port (reset! ws-port port))
-    (when host (reset! ws-host host))
     (when (seq @deps) (set-env! :dependencies #(into % @deps)))
     (reset! out-file (io/file src "tailrecursion" "boot_cljs_repl.cljs"))
     (comp
