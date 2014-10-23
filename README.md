@@ -47,14 +47,14 @@ with no optimizations:
 boot watch cljs-repl cljs -O none
 ```
 
-**Note:** when compiling with optimization level `none`, you must add a script
-tag to the HTML:
-
-```html
-<script type="text/javascript">goog.require('tailrecursion.boot_cljs_repl');</script>
-```
-
-This connects the client to the REPL websocket server.
+> **Note:** when compiling with optimization level `none`, you must add a script
+> tag to the HTML:
+> 
+> ```html
+> <script type="text/javascript">goog.require('tailrecursion.boot_cljs_repl');</script>
+> ```
+> 
+> This connects the client to the REPL websocket server.
 
 ## License
 
