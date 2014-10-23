@@ -26,6 +26,8 @@ or in the REPL:
 boot.user=> (doc cljs-repl)
 ```
 
+#### Setup
+
 A typical `boot.build` file for ClojureScript development:
 
 ```clj
@@ -40,6 +42,15 @@ A typical `boot.build` file for ClojureScript development:
   '[tailrecursion.boot-cljs-repl :refer :all])
 ```
 
+When compiling with optimization level `none` you must add a script tag to the
+page HTML to connect the client to the REPL server:
+
+```html
+<script type="text/javascript">goog.require('tailrecursion.boot_cljs_repl');</script>
+```
+
+#### Build
+
 Start a build pipeline with file-watcher, start ClojureScript REPL, and compile
 with no optimizations:
 
@@ -47,12 +58,16 @@ with no optimizations:
 boot watch cljs-repl cljs -O none
 ```
 
-> **Note:** when compiling with optimization level `none`, you must add this
-> script tag to the page HTML to connect the client to the REPL server:
-> 
-> ```html
-> <script type="text/javascript">goog.require('tailrecursion.boot_cljs_repl');</script>
-> ```
+#### Start REPL
+
+Connect to the REPL server you just started and do:
+
+```clj
+boot.user=> (use 'tailrecursion.boot-cljs-repl)
+boot.user=> (start-repl)
+```
+
+Load your page in a browser. Boom. REPL.
 
 ## License
 
@@ -65,3 +80,4 @@ your option) any later version.
 [2]: http://clojars.org/tailrecursion/boot-cljs-repl/latest-version.svg?cache=2
 [3]: http://clojars.org/tailrecursion/boot-cljs-repl
 [cider]: https://github.com/clojure-emacs/cider
+[weasel]: https://github.com/tomjakubowski/weasel
