@@ -16,7 +16,10 @@
   [ns coord]
   `(when-not (guard (do (require '~ns) :ok)) '~coord))
 
-(def +ws-port+ (atom 9001))
+(def ws-port  (atom 0))
+(def out-file (atom nil))
+(def continue (atom nil))
+(def event    (atom nil))
 
 (def deps 
   (concat
@@ -26,30 +29,38 @@
 
 (defn start-repl
   []
-  ((r cemerick.piggieback/cljs-repl)
-   :repl-env ((r weasel.repl.websocket/repl-env) :port @+ws-port+)))
+  (with-out-str
+    ((r cemerick.piggieback/cljs-repl)
+     :repl-env ((r weasel.repl.websocket/repl-env) :port @ws-port)))
+  (let [conn (->> @@(r weasel.repl.server/state)
+               :server meta :local-port (format "ws://localhost:%d"))]
+    (info "<< started Weasel server on %s >>\n\n" conn)
+    (io/make-parents @out-file)
+    (->> (template
+           ((ns tailrecursion.boot-cljs-repl
+              (:require [weasel.repl :as repl]))
+            (when-not (repl/alive?) (repl/connect ~conn))))
+      (map pr-str) (interpose "\n") (apply str) (spit @out-file))
+    (@continue (make-event @event))))
 
 (deftask cljs-repl
   "Start a ClojureScript REPL server.
 
-  The default configuration starts a websocket server on localhost:9001."
+  The default configuration starts a websocket server on a random available
+  port on localhost."
 
   [p port PORT int "The port the websocket server listens on."]
 
-  (let [src (mksrcdir!)
-        ws  (str "ws:localhost:" (or port @+ws-port+))
-        out (io/file src "tailrecursion" "boot_cljs_repl.cljs")]
-    (io/make-parents out)
-    (when port (reset! +ws-port+ port))
+  (let [src (mksrcdir!)]
+    (when port (reset! ws-port port))
     (when (seq deps) (set-env! :dependencies #(into % deps)))
+    (reset! out-file (io/file src "tailrecursion" "boot_cljs_repl.cljs"))
     (comp
-      (with-pre-wrap
-        (info "ClojureScript REPL configured for %s...\n" ws)
-        (->> (template
-               ((ns tailrecursion.boot-cljs-repl
-                  (:require [weasel.repl :as repl]))
-                (when-not (repl/alive?) (repl/connect ~ws))))
-          (map pr-str) (interpose "\n") (apply str) (spit out)))
       (repl
         :server     true
-        :middleware [(r cemerick.piggieback/wrap-cljs-repl)]))))
+        :middleware [(r cemerick.piggieback/wrap-cljs-repl)])
+      (fn [continue*]
+        (fn [event*]
+          (reset! event event*)
+          (reset! continue continue*)
+          (continue* event*))))))
