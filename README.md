@@ -10,8 +10,8 @@ Add `boot-cljs-repl` to your `build.boot` dependencies and `require` the
 namespace:
 
 ```clj
-(set-env! :dependencies '[[tailrecursion/boot-cljs-repl "X.Y.Z" :scope "test"]])
-(require '[tailrecursion.boot-cljs-repl :refer :all])
+(set-env! :dependencies '[[adzerk/boot-cljs-repl "X.Y.Z" :scope "test"]])
+(require '[adzerk.boot-cljs-repl :refer :all])
 ```
 
 You can see the options available on the command line:
@@ -33,12 +33,12 @@ A typical `boot.build` file for ClojureScript development:
 ```clj
 (set-env!
   :src-paths    #{"src"}
-  :dependencies '[[tailrecursion/boot-cljs      "0.0-2371-12" :scope "test"]
-                  [tailrecursion/boot-cljs-repl "0.1.0"       :scope "test"]])
+  :dependencies '[[adzerk/boot-cljs      "0.0-2371-12" :scope "test"]
+                  [adzerk/boot-cljs-repl "0.1.0"       :scope "test"]])
 
 (require
-  '[tailrecursion.boot-cljs      :refer :all]
-  '[tailrecursion.boot-cljs-repl :refer :all])
+  '[adzerk.boot-cljs      :refer :all]
+  '[adzerk.boot-cljs-repl :refer :all])
 ```
 
 When compiling with optimization level `none` you must add a script tag to the
@@ -46,7 +46,7 @@ page HTML to connect the client to the REPL server:
 
 ```html
 <!-- note: this is only needed when optimization level is :none -->
-<script type="text/javascript">goog.require('tailrecursion.boot_cljs_repl');</script>
+<script type="text/javascript">goog.require('adzerk.boot_cljs_repl');</script>
 ```
 
 ### Build
@@ -77,7 +77,7 @@ Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.
 
 [1]: https://github.com/tailrecursion/boot
-[2]: http://clojars.org/tailrecursion/boot-cljs-repl/latest-version.svg?cache=3
-[3]: http://clojars.org/tailrecursion/boot-cljs-repl
+[2]: http://clojars.org/adzerk/boot-cljs-repl/latest-version.svg?cache=3
+[3]: http://clojars.org/adzerk/boot-cljs-repl
 [cider]: https://github.com/clojure-emacs/cider
 [weasel]: https://github.com/tomjakubowski/weasel

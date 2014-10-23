@@ -6,15 +6,15 @@
 
 (require '[tailrecursion.boot-useful :refer :all])
 
-(def +version+ "0.1.3")
+(def +version+ "0.1.4")
 
 (useful! +version+)
 
 (task-options!
-  pom  [:project     'tailrecursion/boot-cljs-repl
+  pom  [:project     'adzerk/boot-cljs-repl
         :version     +version+
         :description "Boot task to compile ClojureScript applications."
-        :url         "https://github.com/tailrecursion/boot-cljs-repl"
-        :scm         {:url "https://github.com/tailrecursion/boot-cljs-repl"}
+        :url         "https://github.com/adzerk/boot-cljs-repl"
+        :scm         {:url "https://github.com/adzerk/boot-cljs-repl"}
         :license     {:name "Eclipse Public License"
                       :url  "http://www.eclipse.org/legal/epl-v10.html"}])

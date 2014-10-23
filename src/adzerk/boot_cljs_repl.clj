@@ -1,4 +1,4 @@
-(ns tailrecursion.boot-cljs-repl
+(ns adzerk.boot-cljs-repl
   {:boot/export-tasks true}
   (:require
    [clojure.java.io    :as    io]
@@ -47,7 +47,7 @@
     (info (.replaceAll mesg ":[0-9]+ >>" (format ":%d >>" port)))
     (io/make-parents @out-file)
     (->> (template
-           ((ns tailrecursion.boot-cljs-repl
+           ((ns adzerk.boot-cljs-repl
               (:require [weasel.repl :as repl]))
             (when-not (repl/alive?) (repl/connect ~conn))))
       (map pr-str) (interpose "\n") (apply str) (spit @out-file))
@@ -67,7 +67,7 @@
     (when ip (reset! ws-ip ip))
     (when port (reset! ws-port port))
     (when (seq @deps) (set-env! :dependencies #(into % @deps)))
-    (reset! out-file (io/file src "tailrecursion" "boot_cljs_repl.cljs"))
+    (reset! out-file (io/file src "adzerk" "boot_cljs_repl.cljs"))
     (comp
       (repl
         :server     true
