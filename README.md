@@ -71,7 +71,7 @@ Load your page in a browser. Boom. REPL.
 
 ## License
 
-Copyright © 2014 Micha Niskin and Alan Dipert
+Copyright © 2014 Adzerk
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.
