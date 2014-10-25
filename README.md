@@ -41,27 +41,51 @@ A typical `boot.build` file for ClojureScript development:
   '[adzerk.boot-cljs-repl :refer :all])
 ```
 
-When compiling with optimization level `none` you must add a script tag to the
-page HTML to connect the client to the REPL server:
+When compiling with optimization level `none` and you're not using the `-u`
+option with the `cljs` task you must add a script tag to the page HTML to
+connect the client to the REPL server:
 
 ```html
-<!-- note: this is only needed when optimization level is :none -->
+<!--
+  Note: This is only needed when optimization level is :none and the -u
+  (--unified) option is not specified for the cljs task.
+  -->
 <script type="text/javascript">goog.require('adzerk.boot_cljs_repl');</script>
 ```
 
 ### Build
 
 Start a build pipeline with file-watcher, start ClojureScript REPL, and compile
-with no optimizations:
+ClojureScript with source maps, unified HTML loading, and no optimizations:
 
 ```bash
 # note: cljs-repl task must precede cljs task
-boot watch cljs-repl cljs -O none
+boot watch cljs-repl cljs -usO none
 ```
 
-### Start REPL
+### Connect REPL Client
 
-Connect to the REPL server you just started and do:
+To start the CLJS REPL you must connect to the running REPL server. In the
+terminal you can do:
+
+```bash
+boot repl -c
+```
+
+but you can also connect from other REPL clients, like via [cider] in Emacs,
+for example:
+
+```
+M-x cider RET RET RET
+```
+
+> If cider can't figure out which port the server is listening on you may
+> inspect the `.nrepl-port` file was created in the project directory by
+> the REPL server.
+
+### Start CLJS REPL
+
+In the connected REPL client do:
 
 ```clj
 boot.user=> (start-repl)
