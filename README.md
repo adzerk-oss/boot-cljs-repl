@@ -46,10 +46,8 @@ option with the `cljs` task you must add a script tag to the page HTML to
 connect the client to the REPL server:
 
 ```html
-<!--
-  Note: This is only needed when optimization level is :none and the -u
-  (--unified) option is not specified for the cljs task.
-  -->
+<!-- Note: This is only needed when optimization level is :none
+     and the -u (--unified) option is not specified for the cljs task. -->
 <script type="text/javascript">goog.require('adzerk.boot_cljs_repl');</script>
 ```
 
