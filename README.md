@@ -80,8 +80,7 @@ M-x cider RET RET RET
 ```
 
 > If cider can't figure out which port the server is listening on you may
-> inspect the `.nrepl-port` file was created in the project directory by
-> the REPL server.
+> inspect the `.nrepl-port` file in the project directory.
 
 ### Start CLJS REPL
 
