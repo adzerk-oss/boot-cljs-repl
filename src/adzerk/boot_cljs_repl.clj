@@ -52,7 +52,7 @@
             (when-not (repl/alive?) (repl/connect ~conn))))
       (map pr-str) (interpose "\n") (apply str) (spit @out-file))
     (touch @out-file)
-    (@continue (make-event))))
+    (-> (make-event) (prep-build!) (@continue))))
 
 (deftask cljs-repl
   "Start a ClojureScript REPL server.
