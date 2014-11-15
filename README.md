@@ -2,7 +2,7 @@
 
 [![Clojars Project][2]][3]
 
-Boot task providing a ClojureScript browser REPL via [weasel].
+[Boot](https://github.com/boot-clj/boot) task providing a ClojureScript browser REPL via [weasel].
 
 ## Usage
 
