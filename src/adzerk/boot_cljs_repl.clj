@@ -71,7 +71,7 @@
     (comp
       (repl
         :server     true
-        :middleware [(r cemerick.piggieback/wrap-cljs-repl)])
+        :middleware ['cemerick.piggieback/wrap-cljs-repl])
       (fn [continue*]
         (fn [event*]
           (reset! continue continue*)
