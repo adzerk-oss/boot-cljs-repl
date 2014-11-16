@@ -88,6 +88,8 @@ In the connected REPL client do:
 boot.user=> (start-repl)
 ```
 
+Or if you are using Vim and fireplace.vim, use the command `:Piggieback (boot.user/repl-env)`.
+
 Load your page in a browser. Boom. REPL.
 
 ## License
