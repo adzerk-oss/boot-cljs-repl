@@ -28,6 +28,43 @@
       (whendep weasel.repl.websocket [[weasel                    "0.4.1"]])
       (whendep cljs.analyzer         [[org.clojure/clojurescript "0.0-2371"]]))))
 
+(defn- make-repl-connect-file
+  [conn]
+  (io/make-parents @out-file)
+  (->> (template
+         ((ns adzerk.boot-cljs-repl
+            (:require [weasel.repl :as repl]))
+          (when-not (repl/alive?) (repl/connect ~conn))))
+       (map pr-str) (interpose "\n") (apply str) (spit @out-file))
+  (touch @out-file))
+
+(defn- weasel-connection
+  [ip port]
+  (->> (when ip [:ip ip])
+       (apply (r weasel.repl.websocket/repl-env) :port port)))
+
+(defn- weasel-port
+  []
+  (->> @@(r weasel.repl.server/state) :server meta :local-port))
+
+(defn repl-env
+  "Start the Weasel server without attaching a REPL client immediately. This will
+  return a repl-env suitable for use with cemerik.piggieback/cljs-repl.
+  
+  Keyword Options:
+    :ip     str   The IP address the websocket server will listen on.
+    :port   int   The port the websocket server will listen on."
+  [& {i :ip p :port}]
+  (let [i    (or i @ws-ip)
+        p    (or p @ws-port)
+        clih (if (and i (not= i "0.0.0.0")) i "localhost")
+        repl-env (weasel-connection i p)
+        port (weasel-port)
+        conn (format "ws://%s:%d" clih port)]
+    (make-repl-connect-file conn)
+    (-> (make-event) (prep-build!) (@continue))
+    repl-env))
+
 (defn start-repl
   "Start the Weasel server and attach REPL client to running browser environment.
 
@@ -39,19 +76,12 @@
         p    (or p @ws-port)
         clih (if (and i (not= i "0.0.0.0")) i "localhost")
         mesg (with-out-str
-               (->> (when i [:ip i])
-                 (apply (r weasel.repl.websocket/repl-env) :port p)
-                 ((r cemerick.piggieback/cljs-repl) :repl-env)))
-        port (->> @@(r weasel.repl.server/state) :server meta :local-port)
+               (->> (weasel-connection i p)
+                    ((r cemerick.piggieback/cljs-repl) :repl-env)))
+        port (weasel-port)
         conn (format "ws://%s:%d" clih port)]
     (info (.replaceAll mesg ":[0-9]+ >>" (format ":%d >>" port)))
-    (io/make-parents @out-file)
-    (->> (template
-           ((ns adzerk.boot-cljs-repl
-              (:require [weasel.repl :as repl]))
-            (when-not (repl/alive?) (repl/connect ~conn))))
-      (map pr-str) (interpose "\n") (apply str) (spit @out-file))
-    (touch @out-file)
+    (make-repl-connect-file conn)
     (-> (make-event) (prep-build!) (@continue))))
 
 (deftask cljs-repl
