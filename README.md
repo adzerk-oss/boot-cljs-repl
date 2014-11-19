@@ -63,8 +63,8 @@ $ boot watch cljs-repl cljs -usO none
 
 ### Connect REPL Client
 
-To start the CLJS REPL you must connect to the running Clojure nREPL server
-and create a new CLJS REPL:
+To start evaluating forms in the browser you must first connect to the running
+Clojure nREPL server and create a new, browser-connected CLJS REPL:
 
 #### Terminal
 
