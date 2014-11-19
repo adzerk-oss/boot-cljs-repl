@@ -17,7 +17,7 @@ namespace:
 You can see the options available on the command line:
 
 ```bash
-boot cljs-repl -h
+$ boot cljs-repl -h
 ```
 
 or in the REPL:
@@ -58,33 +58,29 @@ ClojureScript with source maps, unified HTML loading, and no optimizations:
 
 ```bash
 # note: cljs-repl task must precede cljs task
-boot watch cljs-repl cljs -usO none
+$ boot watch cljs-repl cljs -usO none
 ```
 
 ### Connect REPL Client
 
-To start the CLJS REPL you must connect to the running REPL server. In the
-terminal you can do:
+To start the CLJS REPL you must connect to the running Clojure nREPL server
+and create a new CLJS REPL:
+
+#### Terminal
 
 ```bash
-boot repl -c
+$ boot repl -c
 ```
 
-but you can also connect from other REPL clients, like via [cider] in Emacs,
-for example:
+```clj
+boot.user=> (start-repl)
+```
+
+#### Emacs Cider
 
 ```
 M-x cider RET RET RET
 ```
-
-> If cider can't figure out which port the server is listening on you may
-> inspect the `.nrepl-port` file in the project directory.
-
-### Start CLJS REPL
-
-In the connected REPL client do:
-
-#### Cider, nREPL
 
 ```clj
 boot.user=> (start-repl)
