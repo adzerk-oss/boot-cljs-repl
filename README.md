@@ -84,11 +84,17 @@ M-x cider RET RET RET
 
 In the connected REPL client do:
 
+#### Cider, nREPL
+
 ```clj
 boot.user=> (start-repl)
 ```
 
-Or if you are using Vim and fireplace.vim, use the command `:Piggieback (boot.user/repl-env)`.
+####  Vim Fireplace
+
+```clj
+:Piggieback (repl-env)
+```
 
 Load your page in a browser. Boom. REPL.
 
