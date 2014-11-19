@@ -26,7 +26,7 @@ or in the REPL:
 boot.user=> (doc cljs-repl)
 ```
 
-### Setup
+## Setup
 
 A typical `boot.build` file for ClojureScript development:
 
@@ -51,17 +51,18 @@ connect the client to the REPL server:
 <script type="text/javascript">goog.require('adzerk.boot_cljs_repl');</script>
 ```
 
-### Build
+## Build
 
-Start a build pipeline with file-watcher, start ClojureScript REPL, and compile
-ClojureScript with source maps, unified HTML loading, and no optimizations:
+Start a build pipeline with file-watcher, ClojureScript REPL server, and
+compile ClojureScript with source maps, unified HTML loading, and no
+optimizations:
 
 ```bash
 # note: cljs-repl task must precede cljs task
 $ boot watch cljs-repl cljs -usO none
 ```
 
-### Connect REPL Client
+## REPL
 
 To start evaluating forms in the browser you must first connect to the running
 Clojure nREPL server and create a new, browser-connected CLJS REPL:
@@ -92,7 +93,9 @@ boot.user=> (start-repl)
 :Piggieback (repl-env)
 ```
 
-Load your page in a browser. Boom. REPL.
+## Boom
+
+Load your page in a browser. You have a REPL.
 
 ## License
 
