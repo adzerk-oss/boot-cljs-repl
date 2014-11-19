@@ -93,10 +93,6 @@ boot.user=> (start-repl)
 :Piggieback (repl-env)
 ```
 
-## Boom
-
-Load your page in a browser. You have a REPL.
-
 ## License
 
 Copyright © 2014 Adzerk
