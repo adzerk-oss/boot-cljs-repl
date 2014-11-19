@@ -65,9 +65,10 @@ $ boot watch cljs-repl cljs -usO none
 ## REPL
 
 To start evaluating forms in the browser you must first connect to the running
-Clojure nREPL server and create a new, browser-connected CLJS REPL. This REPL
-will be nested inside the Clojure REPL, and it will evaluate forms in the
-browser. You can get back to the Clojure REPL via `:cljs/quit`.
+Clojure nREPL server (started by the `cljs-repl` task above) and create a new,
+browser-connected CLJS REPL. This REPL will be nested inside the Clojure REPL,
+and it will evaluate forms in the browser. You can get back to the Clojure REPL
+via `:cljs/quit`.
 
 #### Terminal
 
