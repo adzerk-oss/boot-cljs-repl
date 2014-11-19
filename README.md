@@ -2,7 +2,7 @@
 
 [![Clojars Project][2]][3]
 
-[Boot](https://github.com/boot-clj/boot) task providing a ClojureScript browser REPL via [weasel].
+[Boot] task providing a ClojureScript browser REPL via [Weasel] and [Piggieback].
 
 ## Usage
 
@@ -66,9 +66,7 @@ $ boot watch cljs-repl cljs -usO none
 
 To start evaluating forms in the browser you must first connect to the running
 Clojure nREPL server (started by the `cljs-repl` task above) and create a new,
-browser-connected CLJS REPL. This REPL will be nested inside the Clojure REPL,
-and it will evaluate forms in the browser. You can get back to the Clojure REPL
-via `:cljs/quit`.
+browser-connected CLJS REPL.
 
 #### Terminal
 
@@ -96,6 +94,9 @@ boot.user=> (start-repl)
 :Piggieback (repl-env)
 ```
 
+This will start a browser REPL inside the running nREPL session. You can get
+back to the Clojure repl by evaluating `:cljs/quit`.
+
 ## License
 
 Copyright © 2014 Adzerk
@@ -106,5 +107,7 @@ your option) any later version.
 [1]: https://github.com/tailrecursion/boot
 [2]: http://clojars.org/adzerk/boot-cljs-repl/latest-version.svg?cache=3
 [3]: http://clojars.org/adzerk/boot-cljs-repl
-[cider]: https://github.com/clojure-emacs/cider
-[weasel]: https://github.com/tomjakubowski/weasel
+[Boot]: https://github.com/boot-clj/boot
+[Cider]: https://github.com/clojure-emacs/cider
+[Weasel]: https://github.com/tomjakubowski/weasel
+[piggieback]: https://github.com/cemerick/piggieback
