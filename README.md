@@ -94,9 +94,6 @@ boot.user=> (start-repl)
 :Piggieback (repl-env)
 ```
 
-This will start a browser REPL inside the running nREPL session. You can get
-back to the Clojure repl by evaluating `:cljs/quit`.
-
 ## License
 
 Copyright © 2014 Adzerk
