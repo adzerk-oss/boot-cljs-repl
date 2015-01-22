@@ -117,5 +117,6 @@
           (let [path (tmppath f)
                 in-file (tmpfile f)
                 out-file (io/file tmp path)]
+            (io/make-parents out-file)
             (add-init! in-file out-file)))
         (-> fileset (add-resource tmp) commit!)))))

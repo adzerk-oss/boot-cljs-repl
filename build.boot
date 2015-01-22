@@ -16,5 +16,4 @@
         :description "Boot task to compile ClojureScript applications."
         :url         "https://github.com/adzerk/boot-cljs-repl"
         :scm         {:url "https://github.com/adzerk/boot-cljs-repl"}
-        :license     {:name "Eclipse Public License"
-                      :url  "http://www.eclipse.org/legal/epl-v10.html"}})
+        :license     {"EPL" "http://www.eclipse.org/legal/epl-v10.html"}})
