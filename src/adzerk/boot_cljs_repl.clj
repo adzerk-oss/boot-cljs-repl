@@ -54,14 +54,11 @@
 (defn get-upstream-deps []
   "The way Clojurescript handles this does not work when
    using classloaders in the fancy ways we do."
-  (let [res (pod/classloader-resources "deps.cljs")]
-    (->> (for [[cl uris] res]
-          (if uris
-            (map #(-> % slurp read-string) uris)))
-        flatten
-        distinct
-        (remove nil?)
-        (apply merge-with concat))))
+  (->> (pod/classloader-resources "deps.cljs")
+       (keep second)
+       (mapcat identity)
+       (map (comp read-string slurp))
+       (apply merge-with concat)))
 
 (defn repl-env
   "Start the Weasel server without attaching a REPL client immediately. This will
