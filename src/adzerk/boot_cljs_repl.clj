@@ -17,9 +17,9 @@
 (def ^:private out-file (atom nil))
 
 (def ^:private deps
-  (delay (remove pod/dependency-loaded? '[[com.cemerick/piggieback   "0.1.3"]
-                                          [weasel                    "0.4.1"]
-                                          [org.clojure/clojurescript "0.0-2371"]])))
+  (delay (remove pod/dependency-loaded? '[[com.cemerick/piggieback   "0.1.5-SNAPSHOT"]
+                                          [weasel                    "0.6.0-SNAPSHOT"]
+                                          [org.clojure/clojurescript "0.0-2814"]])))
 
 (defn- make-repl-connect-file
   [conn]
