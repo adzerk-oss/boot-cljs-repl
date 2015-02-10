@@ -34,8 +34,12 @@
        (map pr-str) (interpose "\n") (apply str) (spit @out-file)))
 
 (defn- weasel-connection
-  [ip port]
-  (apply (r weasel.repl.websocket/repl-env) :port port (when ip [:ip ip])))
+  [ip port ups-libs ups-foreign-libs]
+  (apply (r weasel.repl.websocket/repl-env)
+         :port port
+         :ups-libs ups-libs
+         :ups-foreign-libs ups-foreign-libs
+         (when ip [:ip ip])))
 
 (defn- weasel-port
   []
@@ -46,6 +50,18 @@
   (when-let [stop (:server @@(r weasel.repl.server/state))]
     (info "<< stopping repl websocket server >>\n")
     (stop)))
+
+(defn get-upstream-deps []
+  "The way Clojurescript handles this does not work when
+   using classloaders in the fancy ways we do."
+  (let [res (pod/classloader-resources "deps.cljs")]
+    (->> (for [[cl uris] res]
+          (if uris
+            (map #(-> % slurp read-string) uris)))
+        flatten
+        distinct
+        (remove nil?)
+        (apply merge-with concat))))
 
 (defn repl-env
   "Start the Weasel server without attaching a REPL client immediately. This will
@@ -58,7 +74,8 @@
   (let [i        (or i @ws-ip)
         p        (or p @ws-port)
         clih     (if (and i (not= i "0.0.0.0")) i "localhost")
-        repl-env (weasel-connection i p)
+        ups-deps (get-upstream-deps)
+        repl-env (weasel-connection i p (:libs ups-deps) (:foreign-libs ups-deps))
         port     (weasel-port)
         conn     (format "ws://%s:%d" clih port)]
     (make-repl-connect-file conn)
@@ -74,7 +91,7 @@
   (let [i    (or i @ws-ip)
         p    (or p @ws-port)
         clih (if (and i (not= i "0.0.0.0")) i "localhost")]
-    ((r cemerick.piggieback/cljs-repl) :repl-env (weasel-connection i p))
+    ((r cemerick.piggieback/cljs-repl) :repl-env (repl-env :ip i :port p))
     (let [port (weasel-port)
           conn (format "ws://%s:%d" clih port)]
       (make-repl-connect-file conn)
