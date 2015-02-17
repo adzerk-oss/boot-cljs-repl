@@ -1,6 +1,10 @@
 # boot-cljs-repl
 
-[![Clojars Project][2]][3]
+[](dependency)
+```clojure
+[adzerk/boot-cljs-repl "0.1.9"] ;; latest release
+```
+[](/dependency)
 
 [Boot] task providing a ClojureScript browser REPL via [Weasel] and [Piggieback].
 
