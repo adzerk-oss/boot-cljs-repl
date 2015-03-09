@@ -15,7 +15,7 @@ namespace:
 
 ```clj
 (set-env! :dependencies '[[adzerk/boot-cljs-repl "X.Y.Z" :scope "test"]])
-(require '[adzerk.boot-cljs-repl :refer :all])
+(require '[adzerk.boot-cljs-repl :refer [cljs-repl start-repl])
 ```
 
 You can see the options available on the command line:
