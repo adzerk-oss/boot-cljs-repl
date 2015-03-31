@@ -4,6 +4,12 @@
 ```clojure
 [adzerk/boot-cljs-repl "0.1.9"] ;; latest release
 ```
+
+or
+```clojure
+[adzerk/boot-cljs-repl "0.1.10-SNAPSHOT"] ;; current snapshot
+```
+
 [](/dependency)
 
 [Boot] task providing a ClojureScript browser REPL via [Weasel] and [Piggieback].
