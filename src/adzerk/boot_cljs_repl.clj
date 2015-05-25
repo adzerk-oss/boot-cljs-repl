@@ -122,8 +122,8 @@
   [i ip ADDR   str "The IP address for the server to listen on."
    p port PORT int "The port the websocket server listens on."]
 
-  (let [src (b/temp-dir!)
-        tmp (b/temp-dir!)]
+  (let [src (b/tmp-dir!)
+        tmp (b/tmp-dir!)]
     (b/cleanup (weasel-stop))
     (when ip (reset! ws-ip ip))
     (when port (reset! ws-port port))
@@ -137,8 +137,8 @@
             :middleware ['cemerick.piggieback/wrap-cljs-repl])
       (b/with-pre-wrap fileset
         (doseq [f (->> fileset b/input-files (b/by-ext [".cljs.edn"]))]
-          (let [path     (b/tmppath f)
-                in-file  (b/tmpfile f)
+          (let [path     (b/tmp-path f)
+                in-file  (b/tmp-file f)
                 out-file (io/file tmp path)]
             (io/make-parents out-file)
             (add-init! in-file out-file)))
