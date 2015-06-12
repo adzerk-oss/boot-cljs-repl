@@ -18,8 +18,25 @@
 
 (def ^:private deps
   (delay (remove pod/dependency-loaded? '[[com.cemerick/piggieback   "0.2.1"]
-                                          [weasel                    "0.7.0"]
-                                          [org.clojure/clojurescript "0.0-3269"]])))
+                                          [weasel                    "0.7.0"]])))
+
+(def min-deps
+  {'org.clojure/clojurescript "0.0-3308"
+   'org.clojure/tools.nrepl   "0.2.10"
+   'org.clojure/tools.reader  "0.9.2"})
+
+(defn- warn-deps-versions
+  "Warn user if version of dependencies are too low
+
+  Will not check for Clojure, as boot-cljs presence is assumed"
+  []
+  (let [deps     (map :dep (pod/resolve-dependencies (b/get-env)))
+        find-dep (fn [dep] (first (filter #(-> % first #{dep}) deps)))]
+    (doseq [[name version] min-deps
+            :let [dep (find-dep name)]]
+      (when (neg? (compare version (second dep)))
+        (util/warn "WARNING: %s version %s is older than required %s\n"
+          name (second dep) version)))))
 
 (defn- repl-deps []
   (let [deps       (->> (b/get-env) pod/resolve-dependencies (map :dep))
@@ -128,6 +145,7 @@
 
   (let [src (b/tmp-dir!)
         tmp (b/tmp-dir!)]
+    (warn-deps-versions)
     (b/cleanup (weasel-stop))
     (when ip (reset! ws-ip ip))
     (when port (reset! ws-port port))
