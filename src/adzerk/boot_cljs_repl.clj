@@ -1,12 +1,12 @@
 (ns adzerk.boot-cljs-repl
   {:boot/export-tasks true}
-  (:require
-   [clojure.java.io    :as    io]
-   [boot.pod           :as    pod]
-   [boot.util          :as    util]
-   [boot.core          :as    b]
-   [boot.task.built-in :refer [repl]]
-   [boot.from.backtick :refer [template]]))
+  (:require [boot.core          :as    b]
+            [boot.from.backtick :refer [template]]
+            [boot.pod           :as    pod]
+            [boot.task.built-in :refer [repl]]
+            [boot.util          :as    util]
+            [clojure.java.io    :as    io]
+            [clojure.string     :as str]))
 
 (defmacro ^:private r
   [sym]
@@ -25,6 +25,12 @@
    'org.clojure/tools.nrepl   "0.2.10"
    'org.clojure/tools.reader  "0.9.2"})
 
+(defn version->vec [v]
+  (mapv #(Integer/parseInt %) (str/split v #"\.")))
+
+(defn version-compare [v1 v2]
+  (compare (version->vec v1) (version->vec v2)))
+
 (defn- warn-deps-versions
   "Warn user if version of dependencies are too low
 
@@ -34,7 +40,7 @@
         find-dep (fn [dep] (first (filter #(-> % first #{dep}) deps)))]
     (doseq [[name version] min-deps
             :let [dep (find-dep name)]]
-      (when (neg? (compare version (second dep)))
+      (when (neg? (compare (second dep) version))
         (util/warn "WARNING: %s version %s is older than required %s\n"
           name (second dep) version)))))
 
