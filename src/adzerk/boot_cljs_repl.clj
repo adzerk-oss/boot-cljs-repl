@@ -6,7 +6,7 @@
             [boot.task.built-in :refer [repl]]
             [boot.util          :as    util]
             [clojure.java.io    :as    io]
-            [clojure.string     :as str]))
+            [clojure.string     :as    str]))
 
 (defmacro ^:private r
   [sym]
@@ -17,13 +17,14 @@
 (def ^:private out-file (atom nil))
 
 (def ^:private deps
-  (delay (remove pod/dependency-loaded? '[[com.cemerick/piggieback   "0.2.1"]
-                                          [weasel                    "0.7.0"]])))
+  (delay (remove pod/dependency-loaded? '[[com.cemerick/piggieback "0.2.1"]
+                                          [org.clojure/tools.nrepl "0.2.10"]
+                                          [weasel                  "0.7.0"]])))
 
 (def min-deps
   {'org.clojure/clojurescript "0.0-3308"
    'org.clojure/tools.nrepl   "0.2.10"
-   'org.clojure/tools.reader  "0.9.2"})
+   'org.clojure/tools.reader  "0.10.0-alpha1"})
 
 (defn version->vec [v]
   (mapv #(Integer/parseInt %) (str/split v #"\.")))
