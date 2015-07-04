@@ -1,12 +1,12 @@
 (ns adzerk.boot-cljs-repl
   {:boot/export-tasks true}
-  (:require
-   [clojure.java.io    :as    io]
-   [boot.pod           :as    pod]
-   [boot.util          :as    util]
-   [boot.core          :as    b]
-   [boot.task.built-in :refer [repl]]
-   [boot.from.backtick :refer [template]]))
+  (:require [boot.core          :as    b]
+            [boot.from.backtick :refer [template]]
+            [boot.pod           :as    pod]
+            [boot.task.built-in :refer [repl]]
+            [boot.util          :as    util]
+            [clojure.java.io    :as    io]
+            [clojure.string     :as str]))
 
 (defmacro ^:private r
   [sym]
@@ -17,9 +17,32 @@
 (def ^:private out-file (atom nil))
 
 (def ^:private deps
-  (delay (remove pod/dependency-loaded? '[[com.cemerick/piggieback   "0.1.5"]
-                                          [weasel                    "0.6.0-SNAPSHOT"]
-                                          [org.clojure/clojurescript "0.0-2814"]])))
+  (delay (remove pod/dependency-loaded? '[[com.cemerick/piggieback   "0.2.1"]
+                                          [weasel                    "0.7.0"]])))
+
+(def min-deps
+  {'org.clojure/clojurescript "0.0-3308"
+   'org.clojure/tools.nrepl   "0.2.10"
+   'org.clojure/tools.reader  "0.9.2"})
+
+(defn version->vec [v]
+  (mapv #(Integer/parseInt %) (str/split v #"\.")))
+
+(defn version-compare [v1 v2]
+  (compare (version->vec v1) (version->vec v2)))
+
+(defn- warn-deps-versions
+  "Warn user if version of dependencies are too low
+
+  Will not check for Clojure, as boot-cljs presence is assumed"
+  []
+  (let [deps     (map :dep (pod/resolve-dependencies (b/get-env)))
+        find-dep (fn [dep] (first (filter #(-> % first #{dep}) deps)))]
+    (doseq [[name version] min-deps
+            :let [dep (find-dep name)]]
+      (when (neg? (compare (second dep) version))
+        (util/warn "WARNING: %s version %s is older than required %s\n"
+          name (second dep) version)))))
 
 (defn- repl-deps []
   (let [deps       (->> (b/get-env) pod/resolve-dependencies (map :dep))
@@ -28,9 +51,14 @@
     (concat (deref boot.repl/*default-dependencies*)
             (filter #(-> % first relevant?) deps))))
 
+(defn- weasel-port
+  []
+  (->> @@(r weasel.repl.server/state) :server meta :local-port))
+
 (defn- make-repl-connect-file
   [conn]
   (io/make-parents @out-file)
+  (util/info "Connection is %s\n" conn)
   (util/info "Writing %s...\n" (.getName @out-file))
   (->> (template
          ((ns adzerk.boot-cljs-repl
@@ -40,17 +68,21 @@
               (repl/connect ~conn)))))
        (map pr-str) (interpose "\n") (apply str) (spit @out-file)))
 
+(defn- write-repl-connect-file
+  [clih]
+  (let [port (weasel-port)
+        conn (format "ws://%s:%d" clih port)]
+    (make-repl-connect-file conn)))
+
 (defn- weasel-connection
-  [ip port ups-libs ups-foreign-libs]
+  [ip port ups-libs ups-foreign-libs pre-connect]
   (apply (r weasel.repl.websocket/repl-env)
          :port port
          :ups-libs ups-libs
          :ups-foreign-libs ups-foreign-libs
-         (when ip [:ip ip])))
-
-(defn- weasel-port
-  []
-  (->> @@(r weasel.repl.server/state) :server meta :local-port))
+         (concat
+           (when ip [:ip ip])
+           (when pre-connect [:pre-connect pre-connect]))))
 
 (defn- weasel-stop
   []
@@ -79,10 +111,9 @@
         p        (or p @ws-port)
         clih     (if (and i (not= i "0.0.0.0")) i "localhost")
         ups-deps (get-upstream-deps)
-        repl-env (weasel-connection i p (:libs ups-deps) (:foreign-libs ups-deps))
-        port     (weasel-port)
-        conn     (format "ws://%s:%d" clih port)]
-    (make-repl-connect-file conn)
+        repl-env (weasel-connection i p
+                   (:libs ups-deps) (:foreign-libs ups-deps)
+                   #(write-repl-connect-file clih))]
     repl-env))
 
 (defn start-repl
@@ -95,11 +126,7 @@
   (let [i    (or i @ws-ip)
         p    (or p @ws-port)
         clih (if (and i (not= i "0.0.0.0")) i "localhost")]
-    ((r cemerick.piggieback/cljs-repl) :repl-env (repl-env :ip i :port p))
-    (let [port (weasel-port)
-          conn (format "ws://%s:%d" clih port)]
-      (make-repl-connect-file conn)
-      nil)))
+    ((r cemerick.piggieback/cljs-repl) (repl-env :ip i :port p))))
 
 (defn- add-init!
   [in-file out-file]
@@ -122,8 +149,9 @@
   [i ip ADDR   str "The IP address for the server to listen on."
    p port PORT int "The port the websocket server listens on."]
 
-  (let [src (b/temp-dir!)
-        tmp (b/temp-dir!)]
+  (let [src (b/tmp-dir!)
+        tmp (b/tmp-dir!)]
+    (warn-deps-versions)
     (b/cleanup (weasel-stop))
     (when ip (reset! ws-ip ip))
     (when port (reset! ws-port port))
@@ -137,8 +165,8 @@
             :middleware ['cemerick.piggieback/wrap-cljs-repl])
       (b/with-pre-wrap fileset
         (doseq [f (->> fileset b/input-files (b/by-ext [".cljs.edn"]))]
-          (let [path     (b/tmppath f)
-                in-file  (b/tmpfile f)
+          (let [path     (b/tmp-path f)
+                in-file  (b/tmp-file f)
                 out-file (io/file tmp path)]
             (io/make-parents out-file)
             (add-init! in-file out-file)))
