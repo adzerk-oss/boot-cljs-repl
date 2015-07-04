@@ -91,7 +91,7 @@ boot.user=> (start-repl)
 #### Emacs Cider
 
 ```
-M-x cider RET RET RET
+M-x cider-connect
 ```
 
 ```clj
