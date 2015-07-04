@@ -51,16 +51,6 @@ A typical `boot.build` file for ClojureScript development:
   '[adzerk.boot-cljs-repl :refer :all])
 ```
 
-When compiling with optimization level `none` and you're not using the `-u`
-option with the `cljs` task you must add a script tag to the page HTML to
-connect the client to the REPL server:
-
-```html
-<!-- Note: This is only needed when optimization level is :none
-     and the -u (--unified) option is not specified for the cljs task. -->
-<script type="text/javascript">goog.require('adzerk.boot_cljs_repl');</script>
-```
-
 ## Build
 
 Start a build pipeline with file-watcher, ClojureScript REPL server, and
