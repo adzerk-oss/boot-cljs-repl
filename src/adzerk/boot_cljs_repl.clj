@@ -17,9 +17,10 @@
 (def ^:private out-file (atom nil))
 
 (def ^:private deps
-  (delay (remove pod/dependency-loaded? '[[com.cemerick/piggieback   "0.1.5"]
-                                          [weasel                    "0.6.0-SNAPSHOT"]
-                                          [org.clojure/clojurescript "0.0-2814"]])))
+  (delay (remove pod/dependency-loaded? '[[com.cemerick/piggieback   "0.2.1"]
+                                          [org.clojure/tools.nrepl   "0.2.10"]
+                                          [weasel                    "0.7.0-SNAPSHOT"]
+                                          [org.clojure/clojurescript "0.0-3269"]])))
 
 (defn- repl-deps []
   (let [deps       (->> (b/get-env) pod/resolve-dependencies (map :dep))
@@ -95,7 +96,7 @@
   (let [i    (or i @ws-ip)
         p    (or p @ws-port)
         clih (if (and i (not= i "0.0.0.0")) i "localhost")]
-    ((r cemerick.piggieback/cljs-repl) :repl-env (repl-env :ip i :port p))
+    ((r cemerick.piggieback/cljs-repl) (repl-env :ip i :port p))
     (let [port (weasel-port)
           conn (format "ws://%s:%d" clih port)]
       (make-repl-connect-file conn)
