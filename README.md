@@ -106,7 +106,7 @@ boot.user=> (start-repl)
 
 ## License
 
-Copyright © 2014 Adzerk
+Copyright © 2014-15 Adzerk
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.
