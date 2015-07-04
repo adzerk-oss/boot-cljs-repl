@@ -1,7 +1,7 @@
 (set-env!
   :source-paths #{"src"}
-  :dependencies '[[boot/core               "2.0.0" :scope "provided"]
-                  [adzerk/bootlaces        "0.1.9" :scope "test"]])
+  :dependencies '[[boot/core        "2.1.2"  :scope "provided"]
+                  [adzerk/bootlaces "0.1.11" :scope "test"]])
 
 (require '[adzerk.bootlaces :refer :all])
 
@@ -12,7 +12,7 @@
 (task-options!
   pom  {:project     'adzerk/boot-cljs-repl
         :version     +version+
-        :description "Boot task to compile ClojureScript applications."
+        :description "Boot task to provide a ClojureScript REPL."
         :url         "https://github.com/adzerk/boot-cljs-repl"
         :scm         {:url "https://github.com/adzerk/boot-cljs-repl"}
         :license     {"EPL" "http://www.eclipse.org/legal/epl-v10.html"}})
