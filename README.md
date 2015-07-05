@@ -51,6 +51,23 @@ and ClojureScript needed for your application, such as in the following example:
     [org.clojure/clojurescript "0.0-3308"]])
 ```
 
+A typical `boot.build` file for ClojureScript development:
+
+```clj
+(set-env!
+  :src-paths    #{"src"}
+  :dependencies '[[adzerk/boot-cljs      "0.0-X-Y" :scope "test"]
+                  [adzerk/boot-cljs-repl "X.Y.Z"   :scope "test"]
+                  [org.clojure/clojure "X.Y.Z"]
+                  [org.clojure/clojurescript "X.Y.Z"]])
+
+(require
+  '[adzerk.boot-cljs      :refer :all]
+  '[adzerk.boot-cljs-repl :refer :all])
+```
+
+## Help
+
 You can see the task options available on the command line:
 
 ```bash
@@ -61,21 +78,6 @@ or in the REPL:
 
 ```clj
 boot.user=> (doc cljs-repl)
-```
-
-## Setup
-
-A typical `boot.build` file for ClojureScript development:
-
-```clj
-(set-env!
-  :src-paths    #{"src"}
-  :dependencies '[[adzerk/boot-cljs      "0.0-X-Y" :scope "test"]
-                  [adzerk/boot-cljs-repl "X.Y.Z"   :scope "test"]])
-
-(require
-  '[adzerk.boot-cljs      :refer :all]
-  '[adzerk.boot-cljs-repl :refer :all])
 ```
 
 ## Build
