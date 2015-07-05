@@ -14,6 +14,19 @@ or
 
 [Boot] task providing a ClojureScript browser REPL via [Weasel] and [Piggieback].
 
+## Clojure Version 1.7.0
+
+The current version of `boot-cljs-repl` requires Boot to use Clojure 1.7.0. You
+can control the version of Clojure used by boot as described here:
+https://github.com/boot-clj/boot/wiki/Setting-Clojure-version
+
+
+So if you use a boot.properties file it should look something like this:
+```
+BOOT_CLOJURE_VERSION=1.7.0
+BOOT_VERSION=2.1.2
+```
+
 ## Usage
 
 Add `boot-cljs-repl` to your `build.boot` dependencies and `require` the
@@ -59,7 +72,7 @@ optimizations:
 
 ```bash
 # note: cljs-repl task must precede cljs task
-$ boot watch cljs-repl cljs -usO none
+$ boot watch cljs-repl cljs -sO none
 ```
 
 ## REPL
