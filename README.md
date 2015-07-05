@@ -37,7 +37,21 @@ namespace:
 (require '[adzerk.boot-cljs-repl :refer [cljs-repl start-repl]])
 ```
 
-You can see the options available on the command line:
+It's also a good idea to explicitly depend on the specific version of Clojure
+and ClojureScript needed for your application, such as in the following example:
+
+```clj
+(set-env!
+  :dependencies '[
+    [adzerk/boot-cljs      "0.0-3308-0"      :scope "test"]
+    [adzerk/boot-cljs-repl "0.1.10-SNAPSHOT" :scope "test"]
+    [adzerk/boot-reload    "0.3.1"           :scope "test"]
+    [pandeiro/boot-http    "0.6.3-SNAPSHOT"  :scope "test"]
+    [org.clojure/clojure "1.7.0"]
+    [org.clojure/clojurescript "0.0-3308"]])
+```
+
+You can see the task options available on the command line:
 
 ```bash
 $ boot cljs-repl -h
