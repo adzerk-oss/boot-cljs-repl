@@ -141,13 +141,21 @@
           pr-str
           ((partial spit out-file))))))
 
+(defn relevant-cljs-edn [fileset ids]
+  (let [relevant  (map #(str % ".cljs.edn") ids)
+        f         (if ids
+                    #(b/by-name relevant %)
+                    #(b/by-ext [".cljs.edn"] %))]
+    (-> fileset b/input-files f)))
+
 (b/deftask cljs-repl
   "Start a ClojureScript REPL server.
 
   The default configuration starts a websocket server on a random available
   port on localhost."
 
-  [i ip ADDR   str "The IP address for the server to listen on."
+  [b ids BUILD_IDS #{str} "Only inject reloading into these builds (= .cljs.edn files)"
+   i ip ADDR   str "The IP address for the server to listen on."
    p port PORT int "The port the websocket server listens on."]
 
   (let [src (b/tmp-dir!)
@@ -165,7 +173,7 @@
       (repl :server     true
             :middleware ['cemerick.piggieback/wrap-cljs-repl])
       (b/with-pre-wrap fileset
-        (doseq [f (->> fileset b/input-files (b/by-ext [".cljs.edn"]))]
+        (doseq [f (relevant-cljs-edn fileset ids)]
           (let [path     (b/tmp-path f)
                 in-file  (b/tmp-file f)
                 out-file (io/file tmp path)]
