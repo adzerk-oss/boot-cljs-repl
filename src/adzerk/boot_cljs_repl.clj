@@ -12,8 +12,7 @@
   [sym]
   `(do (require '~(symbol (namespace sym))) (resolve '~sym)))
 
-(def ^:private ws-ip    (atom nil))
-(def ^:private ws-port  (atom 0))
+(def ^:private ws-settings (atom {}))
 (def ^:private out-file (atom nil))
 
 (def ^:private deps
@@ -70,9 +69,10 @@
        (map pr-str) (interpose "\n") (apply str) (spit @out-file)))
 
 (defn- write-repl-connect-file
-  [clih]
+  [clih secure?]
   (let [port (weasel-port)
-        conn (format "ws://%s:%d" clih port)]
+        proto (if secure? "wss" "ws")
+        conn (format "%s://%s:%d" proto clih port)]
     (make-repl-connect-file conn)))
 
 (defn- weasel-connection
@@ -105,16 +105,20 @@
   return a repl-env suitable for use with cemerik.piggieback/cljs-repl.
 
   Keyword Options:
-    :ip     str   The IP address the websocket server will listen on.
-    :port   int   The port the websocket server will listen on."
-  [& {i :ip p :port}]
-  (let [i        (or i @ws-ip)
-        p        (or p @ws-port)
-        clih     (if (and i (not= i "0.0.0.0")) i "localhost")
+    :ip      str   The IP address the websocket server will listen on.
+    :port    int   The port the websocket server will listen on.
+    :ws-host str   Websocket host to connect to.
+    :secure  bool  Flag to indicate whether to use a secure websocket."
+  [& {i :ip p :port secure :secure ws-host :ws-host}]
+  (let [i        (or i (:ws-ip @ws-settings))
+        p        (or p (:ws-port @ws-settings))
+        ws-host  (or ws-host (:ws-host @ws-settings))
+        secure   (or secure (:secure @ws-settings))
+        clih     (or ws-host (if (and i (not= i "0.0.0.0")) i "localhost"))
         ups-deps (get-upstream-deps)
         repl-env (weasel-connection i p
                    (:libs ups-deps) (:foreign-libs ups-deps)
-                   #(write-repl-connect-file clih))]
+                   #(write-repl-connect-file clih secure))]
     repl-env))
 
 (defn start-repl
@@ -122,12 +126,15 @@
 
   Keyword Options:
     :ip     str   The IP address the websocket server will listen on.
-    :port   int   The port the websocket server will listen on."
-  [& {i :ip p :port}]
-  (let [i    (or i @ws-ip)
-        p    (or p @ws-port)
-        clih (if (and i (not= i "0.0.0.0")) i "localhost")]
-    ((r cemerick.piggieback/cljs-repl) (repl-env :ip i :port p))))
+    :port   int   The port the websocket server will listen on.
+    :ws-host str   Websocket host to connect to.
+    :secure  bool  Flag to indicate whether to use a secure websocket."
+  [& {i :ip p :port secure :secure ws-host :ws-host}]
+  (let [i    (or i (:ws-ip @ws-settings))
+        p    (or p (:ws-port @ws-settings))
+        ws-host (or ws-host (:ws-host @ws-settings))
+        secure (or secure (:secure @ws-settings))]
+    ((r cemerick.piggieback/cljs-repl) (repl-env :ip i :port p :ws-host ws-host :secure secure))))
 
 (defn- add-init!
   [in-file out-file]
@@ -154,16 +161,19 @@
   The default configuration starts a websocket server on a random available
   port on localhost."
 
-  [b ids BUILD_IDS #{str} "Only inject reloading into these builds (= .cljs.edn files)"
-   i ip ADDR   str "The IP address for the server to listen on."
-   p port PORT int "The port the websocket server listens on."]
-
+  [b ids BUILD_IDS  #{str} "Only inject reloading into these builds (= .cljs.edn files)"
+   i ip ADDR        str "The IP address for the server to listen on."
+   p port PORT      int "The port the websocket server listens on."
+   w ws-host WSADDR str  "The (optional) websocket host address to pass to clients."
+   s secure         bool  "(Optional) flag to indicate whether to connect via wss. Defaults to false."]
   (let [src (b/tmp-dir!)
         tmp (b/tmp-dir!)]
     (warn-deps-versions)
     (b/cleanup (weasel-stop))
-    (when ip (reset! ws-ip ip))
-    (when port (reset! ws-port port))
+    (when ip (swap! ws-settings assoc :ws-ip ip))
+    (when port (swap! ws-settings assoc :ws-port port))
+    (when ws-host (swap! ws-settings assoc :ws-host ws-host))
+    (when secure (swap! ws-settings assoc :secure secure))
     (b/set-env! :source-paths #(conj % (.getPath src))
                 :dependencies #(into % (vec (seq @deps))))
     (reset! out-file (io/file src "adzerk" "boot_cljs_repl.cljs"))
