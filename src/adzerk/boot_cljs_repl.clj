@@ -111,7 +111,7 @@
     :secure  bool  Flag to indicate whether to use a secure websocket."
   [& {i :ip p :port secure :secure ws-host :ws-host}]
   (let [i        (or i (:ws-ip @ws-settings))
-        p        (or p (:ws-port @ws-settings))
+        p        (or p (:ws-port @ws-settings) 0)
         ws-host  (or ws-host (:ws-host @ws-settings))
         secure   (or secure (:secure @ws-settings))
         clih     (or ws-host (if (and i (not= i "0.0.0.0")) i "localhost"))
@@ -131,7 +131,7 @@
     :secure  bool  Flag to indicate whether to use a secure websocket."
   [& {i :ip p :port secure :secure ws-host :ws-host}]
   (let [i    (or i (:ws-ip @ws-settings))
-        p    (or p (:ws-port @ws-settings))
+        p    (or p (:ws-port @ws-settings) 0)
         ws-host (or ws-host (:ws-host @ws-settings))
         secure (or secure (:secure @ws-settings))]
     ((r cemerick.piggieback/cljs-repl) (repl-env :ip i :port p :ws-host ws-host :secure secure))))
