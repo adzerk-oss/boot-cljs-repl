@@ -160,12 +160,12 @@
 
   (let [src (b/tmp-dir!)
         tmp (b/tmp-dir!)]
+    (b/set-env! :source-paths #(conj % (.getPath src))
+                :dependencies #(into % (vec (seq @deps))))
     (warn-deps-versions)
     (b/cleanup (weasel-stop))
     (when ip (reset! ws-ip ip))
     (when port (reset! ws-port port))
-    (b/set-env! :source-paths #(conj % (.getPath src))
-                :dependencies #(into % (vec (seq @deps))))
     (reset! out-file (io/file src "adzerk" "boot_cljs_repl.cljs"))
     (make-repl-connect-file nil)
     (util/dbug "Loaded REPL dependencies: %s\n" (pr-str (repl-deps)))
