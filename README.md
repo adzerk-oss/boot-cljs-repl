@@ -7,7 +7,7 @@
 or snapshot
 [](dependency)
 ```clojure
-[adzerk/boot-cljs-repl "0.1.10-SNAPSHOT"]
+[adzerk/boot-cljs-repl "0.2.0"] ;; latest release
 ```
 [](/dependency)
 
