@@ -59,7 +59,7 @@
 (defn- make-repl-connect-file
   [conn]
   (io/make-parents @out-file)
-  (util/info "Connection is %s\n" conn)
+  (when conn (util/info "Connection is %s\n" conn))
   (util/info "Writing %s...\n" (.getName @out-file))
   (->> (template
          ((ns adzerk.boot-cljs-repl
