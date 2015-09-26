@@ -17,7 +17,7 @@
 
 (def ^:private deps
   (delay (remove pod/dependency-loaded? '[[com.cemerick/piggieback "0.2.1"]
-                                          [org.clojure/tools.nrepl "0.2.10"]
+                                          [org.clojure/tools.nrepl "0.2.11"]
                                           [weasel                  "0.7.0"]])))
 
 (def min-deps
