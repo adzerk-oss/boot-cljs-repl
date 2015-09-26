@@ -148,12 +148,12 @@
           pr-str
           ((partial spit out-file))))))
 
-(defn relevant-cljs-edn [fileset ids]
+(defn relevant-cljs-edn [prev fileset ids]
   (let [relevant  (map #(str % ".cljs.edn") ids)
         f         (if ids
                     #(b/by-name relevant %)
                     #(b/by-ext [".cljs.edn"] %))]
-    (-> fileset b/input-files f)))
+    (-> (b/fileset-diff prev fileset) b/input-files f)))
 
 (b/deftask cljs-repl
   "Start a ClojureScript REPL server.
@@ -167,7 +167,8 @@
    w ws-host WSADDR str "The (optional) websocket host address to pass to clients."
    s secure         bool "Flag to indicate whether the client should connect via wss. Defaults to false."]
   (let [src (b/tmp-dir!)
-        tmp (b/tmp-dir!)]
+        tmp (b/tmp-dir!)
+        prev (atom nil)]
     (b/set-env! :source-paths #(conj % (.getPath src))
                 :dependencies #(into % (vec (seq @deps))))
     (warn-deps-versions)
@@ -183,10 +184,11 @@
       (repl :server     true
             :middleware ['cemerick.piggieback/wrap-cljs-repl])
       (b/with-pre-wrap fileset
-        (doseq [f (relevant-cljs-edn fileset ids)]
+        (doseq [f (relevant-cljs-edn @prev fileset ids)]
           (let [path     (b/tmp-path f)
                 in-file  (b/tmp-file f)
                 out-file (io/file tmp path)]
             (io/make-parents out-file)
             (add-init! in-file out-file)))
+        (reset! prev fileset)
         (-> fileset (b/add-resource tmp) b/commit!)))))
