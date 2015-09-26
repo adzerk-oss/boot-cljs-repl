@@ -120,7 +120,7 @@ boot.user=> (start-repl)
 ####  Vim Fireplace
 
 ```clj
-:Piggieback (repl-env)
+:Piggieback (adzerk.boot-cljs-repl/repl-env)
 ```
 
 ## License
