@@ -166,9 +166,12 @@
    p port PORT      int "The port the websocket server listens on."
    w ws-host WSADDR str "The (optional) websocket host address to pass to clients."
    s secure         bool "Flag to indicate whether the client should connect via wss. Defaults to false."]
+   n nrepl-opts NREPL_OPTS edn "Options passed to the `repl` task."
   (let [src (b/tmp-dir!)
         tmp (b/tmp-dir!)
-        prev (atom nil)]
+        prev (atom nil)
+        piggie-repl (partial repl :server true
+                             :middleware ['cemerick.piggieback/wrap-cljs-repl])]
     (b/set-env! :source-paths #(conj % (.getPath src))
                 :dependencies #(into % (vec (seq @deps))))
     (warn-deps-versions)
@@ -181,8 +184,9 @@
     (make-repl-connect-file nil)
     (util/dbug "Loaded REPL dependencies: %s\n" (pr-str (repl-deps)))
     (comp
-      (repl :server     true
-            :middleware ['cemerick.piggieback/wrap-cljs-repl])
+      (if nrepl-opts
+        (apply piggie-repl (mapcat identity nrepl-opts))
+        (piggie-repl))
       (b/with-pre-wrap fileset
         (doseq [f (relevant-cljs-edn @prev fileset ids)]
           (let [path     (b/tmp-path f)
