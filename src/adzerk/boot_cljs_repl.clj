@@ -161,12 +161,12 @@
   The default configuration starts a websocket server on a random available
   port on localhost."
 
-  [b ids BUILD_IDS  #{str} "Only inject reloading into these builds (= .cljs.edn files)"
-   i ip ADDR        str "The IP address for the server to listen on."
-   p port PORT      int "The port the websocket server listens on."
-   w ws-host WSADDR str "The (optional) websocket host address to pass to clients."
-   s secure         bool "Flag to indicate whether the client should connect via wss. Defaults to false."]
+  [b ids BUILD_IDS         #{str} "Only inject reloading into these builds (= .cljs.edn files)"
+   i ip ADDR               str "The IP address for the server to listen on."
    n nrepl-opts NREPL_OPTS edn "Options passed to the `repl` task."
+   p port PORT             int "The port the websocket server listens on."
+   w ws-host WSADDR        str "The (optional) websocket host address to pass to clients."
+   s secure                bool "Flag to indicate whether the client should connect via wss. Defaults to false."]
   (let [src (b/tmp-dir!)
         tmp (b/tmp-dir!)
         prev (atom nil)
