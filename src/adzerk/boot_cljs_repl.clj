@@ -16,40 +16,23 @@
 (def ^:private out-file (atom nil))
 
 (def ^:private deps
-  (delay (remove pod/dependency-loaded? '[[com.cemerick/piggieback "0.2.1"]
-                                          [org.clojure/tools.nrepl "0.2.11"]
-                                          [weasel                  "0.7.0"]])))
+  '[[com.cemerick/piggieback "0.2.1" :scope "test"]
+    [weasel                  "0.7.0" :scope "test"]
+    [org.clojure/tools.nrepl "0.2.12" :scope "test"]])
 
-(def min-deps
-  {'org.clojure/clojurescript "0.0-3308"
-   'org.clojure/tools.nrepl   "0.2.10"
-   'org.clojure/tools.reader  "0.10.0-alpha1"})
-
-(defn version->vec [v]
-  (mapv #(Integer/parseInt %) (str/split v #"\.")))
-
-(defn version-compare [v1 v2]
-  (compare (version->vec v1) (version->vec v2)))
-
-(defn- warn-deps-versions
-  "Warn user if version of dependencies are too low
-
-  Will not check for Clojure, as boot-cljs presence is assumed"
+(defn- assert-deps
+  "Advices user to add direct deps to requires deps if they
+  are not available."
   []
-  (let [deps     (map :dep (pod/resolve-dependencies (b/get-env)))
-        find-dep (fn [dep] (first (filter #(-> % first #{dep}) deps)))]
-    (doseq [[name version] min-deps
-            :let [dep (find-dep name)]]
-      (when (neg? (compare (second dep) version))
-        (util/warn "WARNING: %s version %s is older than required %s\n"
-          name (second dep) version)))))
-
-(defn- repl-deps []
-  (let [deps       (->> (b/get-env) pod/resolve-dependencies (map :dep))
-        relevant? #{'com.cemerick/piggieback 'weasel 'org.clojure/tools.nrepl
-                    'org.clojure/clojurescript 'cider/cider-nrepl}]
-    (concat (deref boot.repl/*default-dependencies*)
-            (filter #(-> % first relevant?) deps))))
+  (let [current  (->> (b/get-env :dependencies)
+                     (map first)
+                     set)
+        missing  (->> deps
+                      (remove (comp current first)))]
+    (if (seq missing)
+      (util/warn (str "You are missing necessary dependencies for boot-cljs-repl.\n"
+                      "Please add the following dependencies to your project:\n"
+                      (str/join "\n" missing) "\n")))))
 
 (defn- weasel-port
   []
@@ -172,9 +155,8 @@
         prev (atom nil)
         piggie-repl (partial repl :server true
                              :middleware ['cemerick.piggieback/wrap-cljs-repl])]
-    (b/set-env! :source-paths #(conj % (.getPath src))
-                :dependencies #(into % (vec (seq @deps))))
-    (warn-deps-versions)
+    (b/set-env! :source-paths #(conj % (.getPath src)))
+    (assert-deps)
     (b/cleanup (weasel-stop))
     (when ip (swap! ws-settings assoc :ws-ip ip))
     (when port (swap! ws-settings assoc :ws-port port))
@@ -182,7 +164,6 @@
     (when secure (swap! ws-settings assoc :secure secure))
     (reset! out-file (io/file src "adzerk" "boot_cljs_repl.cljs"))
     (make-repl-connect-file nil)
-    (util/dbug "Loaded REPL dependencies: %s\n" (pr-str (repl-deps)))
     (comp
       (if nrepl-opts
         (apply piggie-repl (mapcat identity nrepl-opts))

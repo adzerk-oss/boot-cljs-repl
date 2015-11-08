@@ -1,5 +1,7 @@
 ## Unreleased
 
+- Revisited dependency handling, user is not forced to add direct dependencies
+to REPL libraries
 - Filter ids `by-path` instead of `by-name` for consistency with other tasks
 - Add `nrepl-opts` option
 - Only modify `.cljs.edn` when it has changed
