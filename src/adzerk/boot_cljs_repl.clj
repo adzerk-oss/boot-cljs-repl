@@ -16,9 +16,14 @@
 (def ^:private out-file (atom nil))
 
 (def ^:private deps
-  (delay (remove pod/dependency-loaded? '[[com.cemerick/piggieback "0.2.1"]
-                                          [org.clojure/tools.nrepl "0.2.11"]
-                                          [weasel                  "0.7.0"]])))
+  (delay (remove pod/dependency-loaded?
+           '[[com.cemerick/piggieback "0.2.1"
+              :exclusions [org.clojure/clojure
+                           org.clojure/clojurescript]]
+             [org.clojure/tools.nrepl "0.2.11"]
+             [weasel                  "0.7.0"
+              :exclusions [org.clojure/clojure
+                           org.clojure/clojurescript]]])))
 
 (def min-deps
   {'org.clojure/clojurescript "0.0-3308"
