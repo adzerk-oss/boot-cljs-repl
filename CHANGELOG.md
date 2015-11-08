@@ -1,4 +1,4 @@
-## Unreleased
+## 0.3.0 (8.11.2015)
 
 - Revisited dependency handling, user is not forced to add direct dependencies
 to REPL libraries
