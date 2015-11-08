@@ -1,6 +1,8 @@
 ## Unreleased
 
 - Filter ids `by-path` instead of `by-name` for consistency with other tasks
+- Add `nrepl-opts` option
+- Only modify `.cljs.edn` when it has changed
 
 ## 0.2.0 (26.9.2015)
 
