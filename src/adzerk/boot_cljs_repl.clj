@@ -131,7 +131,7 @@
           pr-str
           ((partial spit out-file))))))
 
-(defn relevant-cljs-edn [prev fileset ids]
+(defn- relevant-cljs-edn [prev fileset ids]
   (let [relevant  (map #(str % ".cljs.edn") ids)
         f         (if ids
                     #(b/by-path relevant %)
