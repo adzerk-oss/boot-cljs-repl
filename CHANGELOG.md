@@ -1,6 +1,6 @@
 ## 0.3.0 (8.11.2015)
 
-- Revisited dependency handling, user is not forced to add direct dependencies
+- **BREAKING**: Revisited dependency handling, user is now forced to add direct dependencies
 to REPL libraries
 - Filter ids `by-path` instead of `by-name` for consistency with other tasks
 - Add `nrepl-opts` option
