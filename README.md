@@ -11,7 +11,7 @@
 This task **requires Clojure 1.7** to learn how to pin the Clojure version in a Boot project
 head to the [Boot wiki](https://github.com/boot-clj/boot/wiki/Setting-Clojure-version).
 
-**NOTE**: Version 0.3.0 changed how the REPL dependencies are handled. For now user is required to add dependencies to necessary libraries to one's project. Cljs-repl task will print the required dependecies when run.
+**NOTE**: Version 0.3.0 changed how the REPL dependencies are handled. For now user is required to add dependencies to necessary libraries to one's project. Cljs-repl task will print the required dependecies when run. <sup><a href="#direct_dependencies">[1]</a></sup>
 
 ## Usage
 
@@ -97,6 +97,18 @@ or in the REPL:
 boot.user=> (doc cljs-repl)
 ```
 
+## Notes
+
+### Direct dependencies
+
+For now user needs to add direct dependencies to REPL libs ([piggieback], [weasel])
+to one's project. This is because Boot tasks shouldn't modify the classpath of the
+application by adding new dependencies, either by calling `set-env!` or though
+transitive dependencies. The preferred way for Boot tasks to use additional libraries
+is through [pods](https://github.com/boot-clj/boot/wiki/Pods) but because the REPL
+is currently run on the main pod (where your application code runs), it's not
+currently possible to use this.
+
 ## License
 
 Copyright © 2014-15 Adzerk
@@ -104,7 +116,6 @@ Copyright © 2014-15 Adzerk
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.
 
-[1]: https://github.com/tailrecursion/boot
 [2]: http://clojars.org/adzerk/boot-cljs-repl/latest-version.svg?cache=4
 [3]: http://clojars.org/adzerk/boot-cljs-repl
 [Boot]: https://github.com/boot-clj/boot
