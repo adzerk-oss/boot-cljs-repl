@@ -11,6 +11,8 @@
 This task **requires Clojure 1.7** to learn how to pin the Clojure version in a Boot project
 head to the [Boot wiki](https://github.com/boot-clj/boot/wiki/Setting-Clojure-version).
 
+**NOTE**: Version 0.3.0 changed how the REPL dependencies are handled. For now user is required to add dependencies to necessary libraries to one's project. Cljs-repl task will print the required dependecies when run.
+
 ## Usage
 
 Add `boot-cljs-repl` to your `build.boot` dependencies and `require` the
