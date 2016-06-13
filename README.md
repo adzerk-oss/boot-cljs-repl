@@ -78,6 +78,28 @@ M-x cider-connect
 boot.user=> (start-repl)
 ```
 
+##### The `cljs-repl-env` task
+
+There is a `cljs-repl-env` task that doesn't start a new nREPL server which you can use via `cider-jack-in`. An example is shown below.
+
+
+```clojure
+(deftask dev []
+  (comp (watch)
+        (cljs-repl-env) ; order is important!!
+        (cljs)))
+```
+
+```
+M-x cider-jack-in
+```
+
+```clojure
+boot.user=> (def p (future (boot (dev))))
+...
+boot.user=> (start-repl)
+```
+
 ####  Vim Fireplace
 
 ```clj

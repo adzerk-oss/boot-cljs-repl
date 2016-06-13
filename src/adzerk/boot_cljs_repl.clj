@@ -138,6 +138,39 @@
                     #(b/by-ext [".cljs.edn"] %))]
     (-> (b/fileset-diff prev fileset) b/input-files f)))
 
+(b/deftask cljs-repl-env
+  "Setup a weasel / piggieback env.
+
+  The default configuration starts a websocket server on a random available
+  port on localhost."
+
+  [b ids BUILD_IDS         #{str} "Only inject reloading into these builds (= .cljs.edn files)"
+   i ip ADDR               str "The IP address for the server to listen on."
+   p port PORT             int "The port the websocket server listens on."
+   w ws-host WSADDR        str "The (optional) websocket host address to pass to clients."
+   s secure                bool "Flag to indicate whether the client should connect via wss. Defaults to false."]
+  (let [src (b/tmp-dir!)
+        tmp (b/tmp-dir!)
+        prev (atom nil)]
+    (b/set-env! :source-paths #(conj % (.getPath src)))
+    (assert-deps)
+    (b/cleanup (weasel-stop))
+    (when ip (swap! ws-settings assoc :ws-ip ip))
+    (when port (swap! ws-settings assoc :ws-port port))
+    (when ws-host (swap! ws-settings assoc :ws-host ws-host))
+    (when secure (swap! ws-settings assoc :secure secure))
+    (reset! out-file (io/file src "adzerk" "boot_cljs_repl.cljs"))
+    (make-repl-connect-file nil)
+    (b/with-pre-wrap fileset
+      (doseq [f (relevant-cljs-edn @prev fileset ids)]
+        (let [path     (b/tmp-path f)
+              in-file  (b/tmp-file f)
+              out-file (io/file tmp path)]
+          (io/make-parents out-file)
+          (add-init! in-file out-file)))
+      (reset! prev fileset)
+      (-> fileset (b/add-resource tmp) b/commit!))))
+
 (b/deftask cljs-repl
   "Start a ClojureScript REPL server.
 
@@ -150,30 +183,10 @@
    p port PORT             int "The port the websocket server listens on."
    w ws-host WSADDR        str "The (optional) websocket host address to pass to clients."
    s secure                bool "Flag to indicate whether the client should connect via wss. Defaults to false."]
-  (let [src (b/tmp-dir!)
-        tmp (b/tmp-dir!)
-        prev (atom nil)
-        piggie-repl (partial repl :server true
+  (let [piggie-repl (partial repl :server true
                              :middleware ['cemerick.piggieback/wrap-cljs-repl])]
-    (b/set-env! :source-paths #(conj % (.getPath src)))
-    (assert-deps)
-    (b/cleanup (weasel-stop))
-    (when ip (swap! ws-settings assoc :ws-ip ip))
-    (when port (swap! ws-settings assoc :ws-port port))
-    (when ws-host (swap! ws-settings assoc :ws-host ws-host))
-    (when secure (swap! ws-settings assoc :secure secure))
-    (reset! out-file (io/file src "adzerk" "boot_cljs_repl.cljs"))
-    (make-repl-connect-file nil)
     (comp
       (if nrepl-opts
         (apply piggie-repl (mapcat identity nrepl-opts))
         (piggie-repl))
-      (b/with-pre-wrap fileset
-        (doseq [f (relevant-cljs-edn @prev fileset ids)]
-          (let [path     (b/tmp-path f)
-                in-file  (b/tmp-file f)
-                out-file (io/file tmp path)]
-            (io/make-parents out-file)
-            (add-init! in-file out-file)))
-        (reset! prev fileset)
-        (-> fileset (b/add-resource tmp) b/commit!)))))
+      (apply cljs-repl-env (mapcat identity (dissoc *opts* :nrepl-opts))))))
