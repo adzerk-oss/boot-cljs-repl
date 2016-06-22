@@ -1,13 +1,7 @@
 (set-env!
-  :source-paths #{"src"}
-  :dependencies '[[boot/core        "2.2.0"  :scope "provided"]
-                  [adzerk/bootlaces "0.1.11" :scope "test"]])
+  :resource-paths #{"src"})
 
-(require '[adzerk.bootlaces :refer :all])
-
-(def +version+ "0.3.1")
-
-(bootlaces! +version+)
+(def +version+ "0.3.2")
 
 (task-options!
   pom  {:project     'adzerk/boot-cljs-repl
@@ -16,3 +10,14 @@
         :url         "https://github.com/adzerk/boot-cljs-repl"
         :scm         {:url "https://github.com/adzerk/boot-cljs-repl"}
         :license     {"EPL" "http://www.eclipse.org/legal/epl-v10.html"}})
+
+(deftask build []
+  (comp
+   (pom)
+   (jar)
+   (install)))
+
+(deftask deploy []
+  (comp
+   (build)
+   (push :repo "clojars" :gpg-sign (not (.endsWith +version+ "-SNAPSHOT")))))

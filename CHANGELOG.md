@@ -1,9 +1,10 @@
-## 0.3.1 (22.6.2016)
+## 0.3.2 (22.6.2016)
 
 - Add `repl-env` task which should be useful with `cider-jack-in` ([#42](https://github.com/adzerk-oss/boot-cljs-repl/pull/42))
 
+[Changelog](https://github.com/adzerk-oss/boot-cljs-repl/compare/0.3.0...0.3.2)
 
-[Changelog](https://github.com/adzerk-oss/boot-cljs-repl/compare/0.3.0...0.3.1)
+(0.3.1 release is broken)
 
 ## 0.3.0 (8.11.2015)
 
