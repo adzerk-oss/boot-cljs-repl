@@ -1,3 +1,10 @@
+## 0.3.1 (22.6.2016)
+
+- Add `repl-env` task which should be useful with `cider-jack-in` ([#42](https://github.com/adzerk-oss/boot-cljs-repl/pull/42))
+
+
+[Changelog](https://github.com/adzerk-oss/boot-cljs-repl/compare/0.3.0...0.3.1)
+
 ## 0.3.0 (8.11.2015)
 
 - **BREAKING**: Revisited dependency handling, user is now forced to add direct dependencies
@@ -5,6 +12,8 @@ to REPL libraries
 - Filter ids `by-path` instead of `by-name` for consistency with other tasks
 - Add `nrepl-opts` option
 - Only modify `.cljs.edn` when it has changed
+
+[Changelog](https://github.com/adzerk-oss/boot-cljs-repl/compare/0.2.0...0.3.0)
 
 ## 0.2.0 (26.9.2015)
 
