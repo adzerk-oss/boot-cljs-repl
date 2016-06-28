@@ -48,7 +48,7 @@
             (:require [weasel.repl :as repl]))
           (let [repl-conn ~conn]
             (when (and repl-conn (not (repl/alive?)))
-              (repl/connect ~conn)))))
+              (repl/connect ~conn :print #{:repl :console})))))
        (map pr-str) (interpose "\n") (apply str) (spit @out-file)))
 
 (defn- write-repl-connect-file
