@@ -6,7 +6,8 @@
             [boot.task.built-in :refer [repl]]
             [boot.util          :as    util]
             [clojure.java.io    :as    io]
-            [clojure.string     :as    str]))
+            [clojure.string     :as    str]
+            [clojure.pprint     :as    pp]))
 
 (defmacro ^:private r
   [sym]
@@ -65,14 +66,17 @@
     (make-repl-connect-file conn)))
 
 (defn- weasel-connection
-  [ip port ups-libs ups-foreign-libs pre-connect]
-  (apply (r weasel.repl.websocket/repl-env)
-         :port port
-         :ups-libs ups-libs
-         :ups-foreign-libs ups-foreign-libs
-         (concat
-           (when ip [:ip ip])
-           (when pre-connect [:pre-connect pre-connect]))))
+  [ip port ups-libs ups-foreign-libs opts pre-connect]
+  (let [repl-opts (merge {:port port
+                          :ups-libs ups-libs
+                          :ups-foreign-libs ups-foreign-libs}
+                         (select-keys opts [:output-to :output-dir])
+                         (when ip
+                           {:ip ip})
+                         (when pre-connect
+                           {:pre-connect pre-connect}))]
+    (println (format "REPL options:\n%s\n" (with-out-str (pp/pprint repl-opts))))
+    (apply-map (r weasel.repl.websocket/repl-env) repl-opts)))
 
 (defn- weasel-stop
   []
@@ -97,12 +101,22 @@
     :ip      str   The IP address the websocket server will listen on.
     :port    int   The port the websocket server will listen on.
     :ws-host str   Websocket host to connect to.
-    :secure  bool  Flag to indicate whether to use a secure websocket."
+    :secure  bool  Flag to indicate whether to use a secure websocket.
+    :id      str   Build defined by cljs.edn to focus on."
   [& {:keys [id ip port secure ws-host]}]
   (let [ip       (or ip (:ws-ip @ws-settings))
         port     (or port (:ws-port @ws-settings) 0)
         ws-host  (or ws-host (:ws-host @ws-settings))
         secure   (or secure (:secure @ws-settings))
+        all-opts (:opts @ws-settings)
+        opts     (if id
+                   (or (get all-opts id)
+                       (println (format "No cljs build defined by id %s found.\n" id)))
+                   (if (seq (rest all-opts))
+                     (do
+                       (println (format "Multiple cljs builds found, focussing on the first one: %s.\n" (key (first all-opts))))
+                       (val (first all-opts)))
+                     (val (first all-opts))))
         listen-host (or ws-host (if (and ip (not= ip "0.0.0.0")) ip "localhost"))
         ups-deps (get-upstream-deps)]
     (weasel-connection
@@ -110,6 +124,7 @@
       port
       (:libs ups-deps)
       (:foreign-libs ups-deps)
+      opts
       #(write-repl-connect-file listen-host secure))))
 
 (defn start-repl
@@ -184,10 +199,14 @@
               (io/make-parents out-file)
               (add-init! in-file out-file)))
           (reset! prev fileset)
-          (-> fileset
-              (b/add-resource tmp)
-              b/commit!
-              next-handler))))))
+          (let [fileset (-> fileset
+                            (b/add-resource tmp)
+                            b/commit!
+                            next-handler)
+                ;; Find compiler options per cljs.edn file
+                cljs-edns (relevant-cljs-edn nil fileset ids) ]
+            (swap! ws-settings assoc :opts (into {} (map (juxt b/tmp-path :adzerk.boot-cljs/opts) cljs-edns)))
+            fileset))))))
 
 (b/deftask cljs-repl
   "Start a ClojureScript REPL server.
