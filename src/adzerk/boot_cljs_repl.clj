@@ -14,6 +14,7 @@
 
 (def ^:private ws-settings (atom {}))
 (def ^:private out-file (atom nil))
+(def ^:private cljs-repl-opts (atom {}))
 
 (def ^:private deps
   '[[com.cemerick/piggieback "0.2.1" :scope "test"]
@@ -111,13 +112,16 @@
     :ip     str   The IP address the websocket server will listen on.
     :port   int   The port the websocket server will listen on.
     :ws-host str   Websocket host to connect to.
-    :secure  bool  Flag to indicate whether to use a secure websocket."
-  [& {i :ip p :port secure :secure ws-host :ws-host}]
+    :secure  bool  Flag to indicate whether to use a secure websocket.
+    :repl-opts map options passed to the cljs-repl"
+  [& {i :ip p :port secure :secure ws-host :ws-host repl-opts :repl-opts}]
   (let [i    (or i (:ws-ip @ws-settings))
         p    (or p (:ws-port @ws-settings) 0)
         ws-host (or ws-host (:ws-host @ws-settings))
         secure (or secure (:secure @ws-settings))]
-    ((r cemerick.piggieback/cljs-repl) (repl-env :ip i :port p :ws-host ws-host :secure secure))))
+    (apply (r cemerick.piggieback/cljs-repl)
+           (repl-env :ip i :port p :ws-host ws-host :secure secure)
+           (mapcat identity (merge @cljs-repl-opts repl-opts)))))
 
 (defn- add-init!
   [in-file out-file]
@@ -148,7 +152,9 @@
    i ip ADDR               str "The IP address for the server to listen on."
    p port PORT             int "The port the websocket server listens on."
    w ws-host WSADDR        str "The (optional) websocket host address to pass to clients."
-   s secure                bool "Flag to indicate whether the client should connect via wss. Defaults to false."]
+   s secure                bool "Flag to indicate whether the client should connect via wss. Defaults to false."
+   d dir DIR               str "The output-dir for repl-compiled Javascript. Defaults to \"target/main.out\""
+   r repl-opts REPL_OPTS   edn "Options passed to the cljs-repl"]
   (let [src (b/tmp-dir!)
         tmp (b/tmp-dir!)
         prev (atom nil)]
@@ -159,6 +165,8 @@
     (when port (swap! ws-settings assoc :ws-port port))
     (when ws-host (swap! ws-settings assoc :ws-host ws-host))
     (when secure (swap! ws-settings assoc :secure secure))
+    (swap! cljs-repl-opts assoc :output-dir (or dir "target/main.out"))
+    (when repl-opts (swap! cljs-repl-opts merge repl-opts))
     (reset! out-file (io/file src "adzerk" "boot_cljs_repl.cljs"))
     (make-repl-connect-file nil)
     (b/with-pre-wrap fileset
