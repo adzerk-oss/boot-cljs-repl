@@ -12,6 +12,9 @@
   [sym]
   `(do (require '~(symbol (namespace sym))) (resolve '~sym)))
 
+(defn apply-map [f m]
+  (apply f (mapcat identity m)))
+
 (def ^:private ws-settings (atom {}))
 (def ^:private out-file (atom nil))
 
@@ -49,7 +52,10 @@
           (let [repl-conn ~conn]
             (when (and repl-conn (not (repl/alive?)))
               (repl/connect ~conn :print #{:repl :console})))))
-       (map pr-str) (interpose "\n") (apply str) (spit @out-file)))
+       (map pr-str)
+       (interpose "\n")
+       (apply str)
+       (spit @out-file)))
 
 (defn- write-repl-connect-file
   [clih secure?]
@@ -92,17 +98,19 @@
     :port    int   The port the websocket server will listen on.
     :ws-host str   Websocket host to connect to.
     :secure  bool  Flag to indicate whether to use a secure websocket."
-  [& {i :ip p :port secure :secure ws-host :ws-host}]
-  (let [i        (or i (:ws-ip @ws-settings))
-        p        (or p (:ws-port @ws-settings) 0)
+  [& {:keys [id ip port secure ws-host]}]
+  (let [ip       (or ip (:ws-ip @ws-settings))
+        port     (or port (:ws-port @ws-settings) 0)
         ws-host  (or ws-host (:ws-host @ws-settings))
         secure   (or secure (:secure @ws-settings))
-        clih     (or ws-host (if (and i (not= i "0.0.0.0")) i "localhost"))
-        ups-deps (get-upstream-deps)
-        repl-env (weasel-connection i p
-                   (:libs ups-deps) (:foreign-libs ups-deps)
-                   #(write-repl-connect-file clih secure))]
-    repl-env))
+        listen-host (or ws-host (if (and ip (not= ip "0.0.0.0")) ip "localhost"))
+        ups-deps (get-upstream-deps)]
+    (weasel-connection
+      ip
+      port
+      (:libs ups-deps)
+      (:foreign-libs ups-deps)
+      #(write-repl-connect-file listen-host secure))))
 
 (defn start-repl
   "Start the Weasel server and attach REPL client to running browser environment.
@@ -112,12 +120,15 @@
     :port   int   The port the websocket server will listen on.
     :ws-host str   Websocket host to connect to.
     :secure  bool  Flag to indicate whether to use a secure websocket."
-  [& {i :ip p :port secure :secure ws-host :ws-host}]
-  (let [i    (or i (:ws-ip @ws-settings))
-        p    (or p (:ws-port @ws-settings) 0)
+  [& {:keys [ip port secure ws-host]}]
+  (let [ip   (or ip (:ws-ip @ws-settings))
+        port (or port (:ws-port @ws-settings) 0)
         ws-host (or ws-host (:ws-host @ws-settings))
         secure (or secure (:secure @ws-settings))]
-    ((r cemerick.piggieback/cljs-repl) (repl-env :ip i :port p :ws-host ws-host :secure secure))))
+    ((r cemerick.piggieback/cljs-repl) (apply-map repl-env {:ip ip
+                                                            :port port
+                                                            :ws-host ws-host
+                                                            :secure secure}))))
 
 (defn- add-init!
   [in-file out-file]
@@ -152,6 +163,7 @@
   (let [src (b/tmp-dir!)
         tmp (b/tmp-dir!)
         prev (atom nil)]
+    ;; FIXME: Why? The connection file is added to the fileset.
     (b/set-env! :source-paths #(conj % (.getPath src)))
     (assert-deps)
     (b/cleanup (weasel-stop))
@@ -161,15 +173,21 @@
     (when secure (swap! ws-settings assoc :secure secure))
     (reset! out-file (io/file src "adzerk" "boot_cljs_repl.cljs"))
     (make-repl-connect-file nil)
-    (b/with-pre-wrap fileset
-      (doseq [f (relevant-cljs-edn @prev fileset ids)]
-        (let [path     (b/tmp-path f)
-              in-file  (b/tmp-file f)
-              out-file (io/file tmp path)]
-          (io/make-parents out-file)
-          (add-init! in-file out-file)))
-      (reset! prev fileset)
-      (-> fileset (b/add-resource tmp) b/commit!))))
+    (fn [next-handler]
+      (fn [fileset]
+        (let [cljs-edns (relevant-cljs-edn @prev fileset ids)]
+          ;; Write cljs-repl client files per cljs.edn
+          (doseq [f cljs-edns]
+            (let [path     (b/tmp-path f)
+                  in-file  (b/tmp-file f)
+                  out-file (io/file tmp path)]
+              (io/make-parents out-file)
+              (add-init! in-file out-file)))
+          (reset! prev fileset)
+          (-> fileset
+              (b/add-resource tmp)
+              b/commit!
+              next-handler))))))
 
 (b/deftask cljs-repl
   "Start a ClojureScript REPL server.
@@ -183,10 +201,8 @@
    p port PORT             int "The port the websocket server listens on."
    w ws-host WSADDR        str "The (optional) websocket host address to pass to clients."
    s secure                bool "Flag to indicate whether the client should connect via wss. Defaults to false."]
-  (let [piggie-repl (partial repl :server true
-                             :middleware ['cemerick.piggieback/wrap-cljs-repl])]
-    (comp
-      (if nrepl-opts
-        (apply piggie-repl (mapcat identity nrepl-opts))
-        (piggie-repl))
-      (apply cljs-repl-env (mapcat identity (dissoc *opts* :nrepl-opts))))))
+  (comp
+    (apply-map repl (merge nrepl-opts
+                           {:server true
+                            :middleware ['cemerick.piggieback/wrap-cljs-repl]}))
+    (apply-map cljs-repl-env (dissoc *opts* :nrepl-opts))))
