@@ -1,3 +1,7 @@
+## 0.3.3 (18.7.2016)
+
+- Default to both REPL and console printing ([#43](https://github.com/adzerk-oss/boot-cljs-repl/pull/43))
+
 ## 0.3.2 (22.6.2016)
 
 - Add `repl-env` task which should be useful with `cider-jack-in` ([#42](https://github.com/adzerk-oss/boot-cljs-repl/pull/42))
