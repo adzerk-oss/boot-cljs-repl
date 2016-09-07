@@ -111,12 +111,12 @@ boot.user=> (start-repl)
 First specify an nREPL-port in the `cljs-repl` task:
 
 ```clj
-(cljs-repl {:nrepl-opts {:port 9009})
+(cljs-repl :nrepl-opts {:port 9009})
 ```
 
 Then create a new nREPL in Cursive: Run -> Edit Configurations -> + -> Clojure REPL -> Remote
 
-Pick "Connect to Server" and fill in 
+Pick "Connect to Server" and fill in
 
 Host: localhost
 
