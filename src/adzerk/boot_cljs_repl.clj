@@ -131,11 +131,12 @@
                                                             :secure secure}))))
 
 (defn- add-init!
-  [in-file out-file]
+  [tmp cljs-edn-path spec]
   (let [ns 'adzerk.boot-cljs-repl
-        spec (-> in-file slurp read-string)]
+        out-file (io/file tmp cljs-edn-path)]
+    (io/make-parents out-file)
     (when (not= :nodejs (-> spec :compiler-options :target))
-      (util/info "Adding :require %s to %s...\n" ns (.getName in-file))
+      (util/info "Adding :require %s to %s...\n" ns cljs-edn-path)
       (io/make-parents out-file)
       (-> spec
           (update-in [:require] conj ns)
@@ -177,12 +178,10 @@
       (fn [fileset]
         (let [cljs-edns (relevant-cljs-edn @prev fileset ids)]
           ;; Write cljs-repl client files per cljs.edn
-          (doseq [f cljs-edns]
-            (let [path     (b/tmp-path f)
-                  in-file  (b/tmp-file f)
-                  out-file (io/file tmp path)]
-              (io/make-parents out-file)
-              (add-init! in-file out-file)))
+          (doseq [f cljs-edns
+                  :let [spec (-> f b/tmp-file slurp read-string)
+                        path (b/tmp-path f)]]
+            (add-init! tmp path spec))
           (reset! prev fileset)
           (-> fileset
               (b/add-resource tmp)

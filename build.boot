@@ -1,7 +1,7 @@
 (set-env!
   :resource-paths #{"src"})
 
-(def +version+ "0.3.3")
+(def +version+ "0.3.4-SNAPSHOT")
 
 (task-options!
   pom  {:project     'adzerk/boot-cljs-repl
