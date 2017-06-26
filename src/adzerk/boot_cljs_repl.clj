@@ -12,9 +12,6 @@
   [sym]
   `(do (require '~(symbol (namespace sym))) (resolve '~sym)))
 
-(defn apply-map [f m]
-  (apply f (mapcat identity m)))
-
 (def ^:private ws-settings (atom {}))
 (def ^:private out-file (atom nil))
 
@@ -64,16 +61,6 @@
         conn (format "%s://%s:%d" proto clih port)]
     (make-repl-connect-file conn)))
 
-(defn- weasel-connection
-  [ip port ups-libs ups-foreign-libs pre-connect]
-  (apply (r weasel.repl.websocket/repl-env)
-         :port port
-         :ups-libs ups-libs
-         :ups-foreign-libs ups-foreign-libs
-         (concat
-           (when ip [:ip ip])
-           (when pre-connect [:pre-connect pre-connect]))))
-
 (defn- weasel-stop
   []
   (when-let [stop (:server @@(r weasel.repl.server/state))]
@@ -98,37 +85,35 @@
     :port    int   The port the websocket server will listen on.
     :ws-host str   Websocket host to connect to.
     :secure  bool  Flag to indicate whether to use a secure websocket."
-  [& {:keys [id ip port secure ws-host]}]
+  [& {:keys [ip port secure ws-host] :as opts}]
   (let [ip       (or ip (:ws-ip @ws-settings))
         port     (or port (:ws-port @ws-settings) 0)
         ws-host  (or ws-host (:ws-host @ws-settings))
         secure   (or secure (:secure @ws-settings))
         listen-host (or ws-host (if (and ip (not= ip "0.0.0.0")) ip "localhost"))
         ups-deps (get-upstream-deps)]
-    (weasel-connection
-      ip
-      port
-      (:libs ups-deps)
-      (:foreign-libs ups-deps)
-      #(write-repl-connect-file listen-host secure))))
+    (apply (r weasel.repl.websocket/repl-env)
+           (mapcat identity
+                   (merge {;; :ws-host ws-host
+                           :port port
+                           :ups-libs (:libs ups-deps)
+                           :ups-foreign-libs (:foreign-libs ups-deps)
+                           :pre-connect #(write-repl-connect-file listen-host secure)}
+                          (if ip {:ip ip})
+                          (dissoc opts :ip :secure :ws-host :port))))))
 
 (defn start-repl
   "Start the Weasel server and attach REPL client to running browser environment.
 
   Keyword Options:
-    :ip     str   The IP address the websocket server will listen on.
-    :port   int   The port the websocket server will listen on.
-    :ws-host str   Websocket host to connect to.
-    :secure  bool  Flag to indicate whether to use a secure websocket."
-  [& {:keys [ip port secure ws-host]}]
-  (let [ip   (or ip (:ws-ip @ws-settings))
-        port (or port (:ws-port @ws-settings) 0)
-        ws-host (or ws-host (:ws-host @ws-settings))
-        secure (or secure (:secure @ws-settings))]
-    ((r cemerick.piggieback/cljs-repl) (apply-map repl-env {:ip ip
-                                                            :port port
-                                                            :ws-host ws-host
-                                                            :secure secure}))))
+  :ip     str   The IP address the websocket server will listen on.
+  :port   int   The port the websocket server will listen on.
+  :ws-host str   Websocket host to connect to.
+  :secure  bool  Flag to indicate whether to use a secure websocket.
+  :cljs-repl-opts edn Repl options passed to the Piggieback client."
+  [& {:keys [ip port secure ws-host cljs-repl-opts] :as opts}]
+  (apply (r cemerick.piggieback/cljs-repl) (apply repl-env (mapcat identity (dissoc opts :cljs-repl-opts)))
+         (mapcat identity cljs-repl-opts)))
 
 (defn- add-init!
   [tmp cljs-edn-path spec]
@@ -168,6 +153,9 @@
     (b/set-env! :source-paths #(conj % (.getPath src)))
     (assert-deps)
     (b/cleanup (weasel-stop))
+    ;; FIXME: This is a mess. Options from task are stored in a
+    ;; atom for latter use in repl-env or cljs-repl. Is there any
+    ;; alternative? Rename the atom at least.
     (when ip (swap! ws-settings assoc :ws-ip ip))
     (when port (swap! ws-settings assoc :ws-port port))
     (when ws-host (swap! ws-settings assoc :ws-host ws-host))
@@ -201,7 +189,8 @@
    w ws-host WSADDR        str "The (optional) websocket host address to pass to clients."
    s secure                bool "Flag to indicate whether the client should connect via wss. Defaults to false."]
   (comp
-    (apply-map repl (merge nrepl-opts
-                           {:server true
-                            :middleware ['cemerick.piggieback/wrap-cljs-repl]}))
-    (apply-map cljs-repl-env (dissoc *opts* :nrepl-opts))))
+    ;; FIXME: concat :middleware?
+    (apply repl (mapcat identity (merge nrepl-opts
+                                        {:server true
+                                         :middleware ['cemerick.piggieback/wrap-cljs-repl]})))
+    (apply cljs-repl-env (mapcat identity (dissoc *opts* :nrepl-opts)))))

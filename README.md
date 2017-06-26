@@ -138,6 +138,21 @@ boot.user=> (doc cljs-repl)
 
 ## Notes
 
+### Cljs repl options
+
+You can pass [Cljs repl options](https://clojurescript.org/reference/repl-options)
+at the `start-repl` call:
+
+```
+boot.user=> (start-repl :cljs-repl-opts {:repl-verbose true})
+```
+
+From Fireplace:
+
+```
+FIXME: Not supported...
+```
+
 ### Direct dependencies
 
 For now user needs to add direct dependencies to REPL libs ([piggieback], [weasel])
