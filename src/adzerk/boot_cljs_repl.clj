@@ -19,9 +19,9 @@
 (def ^:private out-file (atom nil))
 
 (def ^:private deps
-  '[[com.cemerick/piggieback "0.2.1" :scope "test"]
+  '[[com.cemerick/piggieback "0.2.2" :scope "test"]
     [weasel                  "0.7.0" :scope "test"]
-    [org.clojure/tools.nrepl "0.2.12" :scope "test"]])
+    [org.clojure/tools.nrepl "0.2.13" :scope "test"]])
 
 (defn- assert-deps
   "Advices user to add direct deps to requires deps if they

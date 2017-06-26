@@ -1,7 +1,10 @@
 (set-env!
-  :resource-paths #{"src"})
+  :resource-paths #{"src"}
+  :dependencies '[[com.cemerick/piggieback "0.2.2" :scope "test"]
+                  [weasel                  "0.7.0" :scope "test"]
+                  [org.clojure/tools.nrepl "0.2.13" :scope "test"]])
 
-(def +version+ "0.3.4-SNAPSHOT")
+(def +version+ "0.4.0-SNAPSHOT")
 
 (task-options!
   pom  {:project     'adzerk/boot-cljs-repl
