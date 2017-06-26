@@ -1,3 +1,7 @@
+## Unreleased
+
+- Add `:cljs-repl-opts` to `start-repl`, allows passing [CLJS Repl options](https://clojurescript.org/reference/repl-options)
+
 ## 0.3.3 (18.7.2016)
 
 - Default to both REPL and console printing ([#43](https://github.com/adzerk-oss/boot-cljs-repl/pull/43))
