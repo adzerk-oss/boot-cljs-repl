@@ -149,7 +149,9 @@
   (let [src (b/tmp-dir!)
         tmp (b/tmp-dir!)
         prev (atom nil)]
-    ;; FIXME: Why? The connection file is added to the fileset.
+    ;; The client file is rewriten when calling repl-env, this is why this has to be
+    ;; on :source-paths, to enable recompilation when the file is written.
+    ;; FIXME: Is there alternative way to trigger recompilation without messing with :source-paths?
     (b/set-env! :source-paths #(conj % (.getPath src)))
     (assert-deps)
     (b/cleanup (weasel-stop))
@@ -172,6 +174,9 @@
             (add-init! tmp path spec))
           (reset! prev fileset)
           (-> fileset
+              ;; Also on :source-paths, but sometimes the files is not found the first time
+              ;; probably due to set-env! side-effects.
+              (b/add-source src)
               (b/add-resource tmp)
               b/commit!
               next-handler))))))
