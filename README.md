@@ -84,6 +84,11 @@ There is a `cljs-repl-env` task that doesn't start a new nREPL server which you 
 
 
 ```clojure
+(require ...
+    '[adzerk.boot-cljs-repl :refer [cljs-repl start-repl cljs-repl-env]]
+    ...
+    )
+
 (deftask dev []
   (comp (watch)
         (cljs-repl-env) ; order is important!!
