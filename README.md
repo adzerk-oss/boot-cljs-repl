@@ -2,9 +2,9 @@
 
 ```clojure
 [adzerk/boot-cljs-repl   "0.3.3"] ;; latest release
-[com.cemerick/piggieback "0.2.1"  :scope "test"]
+[cider/piggieback        "0.3.5"  :scope "test"]
 [weasel                  "0.7.0"  :scope "test"]
-[org.clojure/tools.nrepl "0.2.12" :scope "test"]
+[nrepl                   "0.3.1"  :scope "test"]
 ```
 
 [Boot] task providing a ClojureScript browser REPL via [Weasel] and [Piggieback].
@@ -180,4 +180,4 @@ your option) any later version.
 [Boot]: https://github.com/boot-clj/boot
 [Cider]: https://github.com/clojure-emacs/cider
 [Weasel]: https://github.com/tomjakubowski/weasel
-[piggieback]: https://github.com/cemerick/piggieback
+[piggieback]: https://github.com/nrepl/piggieback

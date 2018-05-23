@@ -16,9 +16,9 @@
 (def ^:private out-file (atom nil))
 
 (def ^:private deps
-  '[[com.cemerick/piggieback "0.2.2" :scope "test"]
-    [weasel                  "0.7.0" :scope "test"]
-    [org.clojure/tools.nrepl "0.2.13" :scope "test"]])
+  '[[cider/piggieback "0.3.5" :scope "test"]
+    [weasel           "0.7.0" :scope "test"]
+    [nrepl            "0.3.1" :scope "test"]])
 
 (defn- assert-deps
   "Advices user to add direct deps to requires deps if they
@@ -112,7 +112,7 @@
   :secure  bool  Flag to indicate whether to use a secure websocket.
   :cljs-repl-opts edn Repl options passed to the Piggieback client."
   [& {:keys [ip port secure ws-host cljs-repl-opts] :as opts}]
-  (apply (r cemerick.piggieback/cljs-repl) (apply repl-env (mapcat identity (dissoc opts :cljs-repl-opts)))
+  (apply (r cider.piggieback/cljs-repl) (apply repl-env (mapcat identity (dissoc opts :cljs-repl-opts)))
          (mapcat identity cljs-repl-opts)))
 
 (defn- add-init!
