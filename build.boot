@@ -1,8 +1,8 @@
 (set-env!
   :resource-paths #{"src"}
-  :dependencies '[[cider/piggieback "0.3.5" :scope "test"]
+  :dependencies '[[cider/piggieback "0.3.9" :scope "test"]
                   [weasel           "0.7.0" :scope "test"]
-                  [nrepl            "0.3.1" :scope "test"]])
+                  [nrepl            "0.4.5" :scope "test"]])
 
 (def +version+ "0.5.0-SNAPSHOT")
 

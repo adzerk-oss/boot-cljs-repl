@@ -16,9 +16,9 @@
 (def ^:private out-file (atom nil))
 
 (def ^:private deps
-  '[[cider/piggieback "0.3.5" :scope "test"]
+  '[[cider/piggieback "0.3.9" :scope "test"]
     [weasel           "0.7.0" :scope "test"]
-    [nrepl            "0.3.1" :scope "test"]])
+    [nrepl            "0.4.5" :scope "test"]])
 
 (defn- assert-deps
   "Advices user to add direct deps to requires deps if they
@@ -197,5 +197,5 @@
     ;; FIXME: concat :middleware?
     (apply repl (mapcat identity (merge nrepl-opts
                                         {:server true
-                                         :middleware ['cemerick.piggieback/wrap-cljs-repl]})))
+                                         :middleware ['cider.piggieback/wrap-cljs-repl]})))
     (apply cljs-repl-env (mapcat identity (dissoc *opts* :nrepl-opts)))))
