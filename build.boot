@@ -4,7 +4,7 @@
                   [weasel           "0.7.0" :scope "test"]
                   [nrepl            "0.4.5" :scope "test"]])
 
-(def +version+ "0.5.0-SNAPSHOT")
+(def +version+ "0.4.0")
 
 (task-options!
   pom  {:project     'adzerk/boot-cljs-repl

@@ -1,10 +1,15 @@
-## Unreleased
+## 0.4.0 (2018-09-02)
 
+- Use new `nrepl` and `cider/piggieback` dependencies
 - Add `:cljs-repl-opts` to `start-repl`, allows passing [CLJS Repl options](https://clojurescript.org/reference/repl-options)
 
-## 0.3.3 (18.7.2016)
+[Compare](https://github.com/adzerk-oss/boot-cljs-repl/compare/0.3.3...0.4.0)
+
+## 0.3.3 (2016-07-18)
 
 - Default to both REPL and console printing ([#43](https://github.com/adzerk-oss/boot-cljs-repl/pull/43))
+
+[Compare](https://github.com/adzerk-oss/boot-cljs-repl/compare/0.3.2...0.3.3)
 
 ## 0.3.2 (22.6.2016)
 
