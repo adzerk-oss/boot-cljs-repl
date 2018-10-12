@@ -1,7 +1,7 @@
 # boot-cljs-repl
 
 ```clojure
-[adzerk/boot-cljs-repl   "0.3.3"] ;; latest release
+[adzerk/boot-cljs-repl   "0.4.0"] ;; latest release
 [cider/piggieback        "0.3.9"  :scope "test"]
 [weasel                  "0.7.0"  :scope "test"]
 [nrepl                   "0.4.5"  :scope "test"]
