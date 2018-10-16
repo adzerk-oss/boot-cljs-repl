@@ -65,7 +65,7 @@ $ boot repl -c
 ```
 
 ```clj
-boot.user=> (start-repl)
+boot.user=> (start-repl) ; Don't forget this step!
 ```
 
 #### Emacs Cider
@@ -75,7 +75,7 @@ M-x cider-connect
 ```
 
 ```clj
-boot.user=> (start-repl)
+boot.user=> (start-repl) ; Don't forget this step!
 ```
 
 ##### The `cljs-repl-env` task
